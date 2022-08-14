@@ -5,16 +5,8 @@ const FetchComponent = () => {
 
   useEffect(() => {
     fetch("/hello")
-      .then((res) => {
-        console.log("res")
-        console.log(res)
-        return res.json();
-      })
-      .then((data) => {
-        console.log("data")
-        console.log(data.message)
-        setData(data.message)
-      });
+      .then((res) => res.json())
+      .then((data) => setData(data.message));
   }, []);
 
   return (

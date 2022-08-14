@@ -4,10 +4,14 @@ const PORT = process.env.PORT || 3001;
 
 const app = express();
 
+
+app.get("/test", (req, res) => {
+
+})
+
 app.get("/hello", (req, res) => {
   res.json({ message: "Hello from server!" });
 })
-
 
 // must be at the bottom
 app.listen(PORT, () => {
