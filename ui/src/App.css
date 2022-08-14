@@ -20,8 +20,8 @@
 }
 
 .canvas {
-  border-radius: 2rem;
   background-color: white;
+  cursor: crosshair;
 }
 
 .canvas-settings-div {

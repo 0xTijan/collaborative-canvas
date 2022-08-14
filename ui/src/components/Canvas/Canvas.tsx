@@ -4,21 +4,13 @@ import { io } from "socket.io-client";
 
 const socket = io("http://localhost:3001/");
 
-interface CanvasProps {
-  width?: number,
-  height?: number,
-}
-
 type Coordinate = {
   x: number;
   y: number;
 }
   
 
-const Canvas: React.FC<CanvasProps> = ({
-  width,
-  height
-}) => {
+const Canvas = () => {
 
   const [color, setColor] = useState<string>("red");
   const [lineWidth, setLineWidth] = useState<number>(5);
@@ -27,10 +19,41 @@ const Canvas: React.FC<CanvasProps> = ({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+
   const sendCanvasImage = () => {
     let url = getImageUrl();
     if(url) {
       socket.emit('canvas-data', url);
+    }
+  }
+
+  const downloadImage = () => {
+    if(canvasRef.current) {
+      let url = getImageUrl();
+      if(url) {
+        fetch(url)
+          .then((response) => response.blob())
+          .then((blob) => {
+            // Create blob link to download
+            const url = window.URL.createObjectURL(
+              new Blob([blob]),
+            );
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute(
+              'download', "canvas.png"
+            );
+
+            // Append to html link element page
+            document.body.appendChild(link);
+
+            // Start download
+            link.click();
+
+            // Clean up and remove the link
+            link?.parentNode?.removeChild(link);
+          });
+      }
     }
   }
 
@@ -96,6 +119,7 @@ const Canvas: React.FC<CanvasProps> = ({
 
   const exitPaint = useCallback(() => {
     setIsPainting(false);
+    sendCanvasImage();
   }, []);
 
   const clearCanvas = () => {
@@ -156,14 +180,25 @@ const Canvas: React.FC<CanvasProps> = ({
     }
 
     socket.on("canvas-data", (data) => {
-      console.log(data);
+      console.log(data)
+      if(canvasRef.current) {
+        const canvas: HTMLCanvasElement = canvasRef.current;
+        const context = canvas.getContext('2d');
+        let image = new Image();
+        image.onload = function() {
+          if(context) {
+            context.drawImage(image, 0, 0);
+          }
+        }
+        image.src = data;
+      }
     })
   }, []);
 
   return(
     <>
       <div className="canvas-outer-box">
-        <canvas className="canvas" height={height} width={width} ref={canvasRef} />
+        <canvas className="canvas" height={window.innerHeight} width={window.innerWidth*1} ref={canvasRef} />
       </div>
       
       <CanvasSettings
@@ -173,15 +208,14 @@ const Canvas: React.FC<CanvasProps> = ({
         lineWidth={lineWidth}
         setLineWidth={setLineWidth}
       />
-
-      <button onClick={sendCanvasImage}>send</button>
+      
+      <>
+        <button onClick={downloadImage}>Download Canvas</button>
+        <button onClick={() => {}}>Mint As NFT</button>
+        <button onClick={() => {}}>Send me to Email</button>
+      </>
     </>
   )
-}
-
-Canvas.defaultProps = {
-  width: window.innerWidth*0.7,
-  height: window.innerHeight*0.7
 }
 
 export default Canvas;

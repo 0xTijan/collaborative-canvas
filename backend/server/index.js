@@ -13,7 +13,7 @@ app.get('/hello', (req, res) => {
 });
 
 io.on('connection', (socket)=> {
-  console.log('User Online');
+  console.log('connected');
 
   socket.on('canvas-data', (data)=> {
     console.log("data: ", data)

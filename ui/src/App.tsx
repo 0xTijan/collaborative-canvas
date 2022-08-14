@@ -9,7 +9,7 @@ function App() {
   return (
     <>
     <div className="App">
-      {/*<h1 className='title'>Canvas</h1>*/}
+      <h1 className='title'>Real Time Canvas & Chat</h1>
       <Canvas />
     </div>
     </>
