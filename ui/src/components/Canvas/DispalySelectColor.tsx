@@ -21,15 +21,17 @@ const DisplaySelectColor: React.FC<DisplaySelectColorProps> = ({
       height: "2.75rem",
       borderRadius: "1000px",
       borderWidth: "4px",
-      borderColor: selected ? "green" : "gray",
       marginLeft: "1rem",
-      marginRight: "1rem"
+      marginRight: "1rem",
     };
   }
 
+  const getBg = (selected: boolean) => selected ? "grey":"transparent" ;
+
   return(
     <div
-      style={{ display: "flex", justifyContent: "center", flexDirection: "column" }}
+      style={{ backgroundColor: getBg(selected) }}
+      className="select-color"
       onClick={() => setColor(cssColorValue)}
     >
       <div style={getStyles()}></div>

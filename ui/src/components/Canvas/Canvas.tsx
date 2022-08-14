@@ -1,5 +1,8 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import CanvasSettings from "./CanvasSettings";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3001/");
 
 interface CanvasProps {
   width?: number,
@@ -24,6 +27,21 @@ const Canvas: React.FC<CanvasProps> = ({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const sendCanvasImage = () => {
+    let url = getImageUrl();
+    if(url) {
+      socket.emit('canvas-data', url);
+    }
+  }
+
+  const getImageUrl = () => {
+    if (!canvasRef.current) {
+      return;
+    }
+    const canvas: HTMLCanvasElement = canvasRef.current;
+    const image = canvas.toDataURL("image/png");
+    return image;
+  }
 
   const getCoordinates = (event: MouseEvent): Coordinate | undefined => {
     if (!canvasRef.current) {
@@ -80,6 +98,15 @@ const Canvas: React.FC<CanvasProps> = ({
     setIsPainting(false);
   }, []);
 
+  const clearCanvas = () => {
+    if (!canvasRef.current) {
+      return;
+    }
+    const canvas: HTMLCanvasElement = canvasRef.current;
+    const context = canvas.getContext('2d');
+    context?.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
   useEffect(() => {
     if (!canvasRef.current) {
       return;
@@ -117,17 +144,44 @@ const Canvas: React.FC<CanvasProps> = ({
     };
   }, [exitPaint]);
 
+  useEffect(() => {
+    if (!canvasRef.current) {
+      return;
+    }
+    const canvas: HTMLCanvasElement = canvasRef.current;
+    const context = canvas.getContext("2d");
+    if (context) {
+      context.fillStyle = "white";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    socket.on("canvas-data", (data) => {
+      console.log(data);
+    })
+  }, []);
+
   return(
-    <div className="canvas-outer-box">
-      <canvas className="canvas" height={height} width={width} ref={canvasRef} />
-      <CanvasSettings color={color} setColor={setColor} />
-    </div>
+    <>
+      <div className="canvas-outer-box">
+        <canvas className="canvas" height={height} width={width} ref={canvasRef} />
+      </div>
+      
+      <CanvasSettings
+        color={color}
+        setColor={setColor}
+        clearCanvas={clearCanvas}
+        lineWidth={lineWidth}
+        setLineWidth={setLineWidth}
+      />
+
+      <button onClick={sendCanvasImage}>send</button>
+    </>
   )
 }
 
 Canvas.defaultProps = {
-  width: window.innerWidth*0.85,
-  height: window.innerHeight*0.85
+  width: window.innerWidth*0.7,
+  height: window.innerHeight*0.7
 }
 
 export default Canvas;

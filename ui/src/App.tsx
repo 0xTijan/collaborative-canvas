@@ -3,12 +3,13 @@ import logo from './logo.svg';
 import './App.css';
 import FetchComponent from './components/FetchComponent';
 import Canvas from './components/Canvas/Canvas';
+import SocketTest from './components/SocketTest';
 
 function App() {
   return (
     <>
     <div className="App">
-      <h1 className='title'>Canvas Drawing</h1>
+      {/*<h1 className='title'>Canvas</h1>*/}
       <Canvas />
     </div>
     </>
