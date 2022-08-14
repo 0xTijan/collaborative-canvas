@@ -1,6 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import CanvasSettings from "./CanvasSettings";
 import { io } from "socket.io-client";
+import { inflateRaw } from "zlib";
+import { useNotification } from "@web3uikit/core";
+import { getNotification } from "../../helpers/helpers";
 
 const socket = io("http://localhost:3001/");
 
@@ -18,7 +21,7 @@ const Canvas = () => {
   const [mousePosition, setMousePosition] = useState<Coordinate | undefined>(undefined);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
+  const notify = useNotification();
 
   const sendCanvasImage = () => {
     let url = getImageUrl();
@@ -29,30 +32,34 @@ const Canvas = () => {
 
   const downloadImage = () => {
     if(canvasRef.current) {
-      let url = getImageUrl();
-      if(url) {
-        fetch(url)
-          .then((response) => response.blob())
-          .then((blob) => {
-            // Create blob link to download
-            const url = window.URL.createObjectURL(
-              new Blob([blob]),
-            );
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute(
-              'download', "canvas.png"
-            );
+      if(window.confirm("Do you want to download this canvas?")) {
+        let url = getImageUrl();
+        if(url) {
+          fetch(url)
+            .then((response) => response.blob())
+            .then((blob) => {
+              // Create blob link to download
+              const url = window.URL.createObjectURL(
+                new Blob([blob]),
+              );
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute(
+                'download', "canvas.png"
+              );
 
-            // Append to html link element page
-            document.body.appendChild(link);
+              // Append to html link element page
+              document.body.appendChild(link);
 
-            // Start download
-            link.click();
+              // Start download
+              link.click();
 
-            // Clean up and remove the link
-            link?.parentNode?.removeChild(link);
-          });
+              // Clean up and remove the link
+              link?.parentNode?.removeChild(link);
+
+              notify(getNotification("success", "Image Downloaded! 😀", "Image downloaded successfully!"));
+            });
+        }
       }
     }
   }
@@ -169,36 +176,53 @@ const Canvas = () => {
   }, [exitPaint]);
 
   useEffect(() => {
-    if (!canvasRef.current) {
-      return;
-    }
-    const canvas: HTMLCanvasElement = canvasRef.current;
-    const context = canvas.getContext("2d");
-    if (context) {
-      context.fillStyle = "white";
-      context.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    socket.on("canvas-data", (data) => {
-      console.log(data)
-      if(canvasRef.current) {
-        const canvas: HTMLCanvasElement = canvasRef.current;
-        const context = canvas.getContext('2d');
-        let image = new Image();
-        image.onload = function() {
-          if(context) {
-            context.drawImage(image, 0, 0);
-          }
-        }
-        image.src = data;
+    (async function get() {
+      if (!canvasRef.current) {
+        return;
       }
-    })
+
+      const response = await fetch('/last-canvas');
+      const lastImage = await response.json();
+
+      const canvas: HTMLCanvasElement = canvasRef.current;
+      const context = canvas.getContext("2d");
+      if (context) {
+        context.fillStyle = "white";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      if(lastImage) {
+        if(lastImage.data) {
+          let image = new Image();
+          image.onload = function() {
+            if(context) {
+              context.drawImage(image, 0, 0);
+            }
+          }
+          image.src = lastImage.data;
+        }
+      }
+
+      socket.on("canvas-data", (data) => {
+        console.log(data)
+        if(canvasRef.current) {
+          const canvas: HTMLCanvasElement = canvasRef.current;
+          const context = canvas.getContext('2d');
+          let image = new Image();
+          image.onload = function() {
+            if(context) {
+              context.drawImage(image, 0, 0);
+            }
+          }
+          image.src = data;
+        }
+      })
+    })();
   }, []);
 
   return(
     <>
       <div className="canvas-outer-box">
-        <canvas className="canvas" height={window.innerHeight} width={window.innerWidth*1} ref={canvasRef} />
+        <canvas className="canvas" height={window.innerHeight*0.85} width={window.innerWidth*0.85} ref={canvasRef} />
       </div>
       
       <CanvasSettings
@@ -212,7 +236,7 @@ const Canvas = () => {
       <>
         <button onClick={downloadImage}>Download Canvas</button>
         <button onClick={() => {}}>Mint As NFT</button>
-        <button onClick={() => {}}>Send me to Email</button>
+        <button onClick={() => {}}>Send it to my Email</button>
       </>
     </>
   )

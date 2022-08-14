@@ -8,8 +8,8 @@
 .title {
   color: #61dafb;
   background-color: #282c34;
-  font-size: 3.5rem;
-  font-weight: 800;
+  font-size: 3rem;
+  font-weight: 900;
   margin-bottom: 4vh;
   margin-top: 0;
   padding-top: 0;
@@ -22,6 +22,7 @@
 .canvas {
   background-color: white;
   cursor: crosshair;
+  border-radius: 1.75rem;
 }
 
 .canvas-settings-div {
@@ -60,6 +61,20 @@
   text-align: center;
   padding: 0.5rem;
   border-radius: 1rem;
+}
+
+.select-color:hover {
+  background-color: #bababa;
+}
+
+.select-color div {
+  border-radius: 1000px;
+  transition-duration: 0.2s;
+}
+
+.select-color div:hover {
+  border-radius: 12px;
+  transition-duration: 0.2s;
 }
 
 .width-setting {

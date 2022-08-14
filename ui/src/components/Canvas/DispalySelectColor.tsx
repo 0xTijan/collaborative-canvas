@@ -19,14 +19,13 @@ const DisplaySelectColor: React.FC<DisplaySelectColorProps> = ({
       backgroundColor: cssColorValue,
       width: "2.75rem",
       height: "2.75rem",
-      borderRadius: "1000px",
       borderWidth: "4px",
       marginLeft: "1rem",
       marginRight: "1rem",
     };
   }
 
-  const getBg = (selected: boolean) => selected ? "grey":"transparent" ;
+  const getBg = (selected: boolean) => selected ? "#9c9c9c":"transparent" ;
 
   return(
     <div
@@ -34,7 +33,7 @@ const DisplaySelectColor: React.FC<DisplaySelectColorProps> = ({
       className="select-color"
       onClick={() => setColor(cssColorValue)}
     >
-      <div style={getStyles()}></div>
+      <div className="color-circle" style={getStyles()}></div>
       <span style={{ color: "white", marginTop: "1vh" }}>{colorName}</span>
     </div>
   )

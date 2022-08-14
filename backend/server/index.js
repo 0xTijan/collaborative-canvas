@@ -8,15 +8,15 @@ const io = require('socket.io')(server, {cors: {origin: "*"}});
 const PORT = process.env.PORT || 3001;
 
 
-app.get('/hello', (req, res) => {
-  res.json({ message: "Hello from server!" });
+let lastImage;
+
+app.get('/last-canvas', (req, res) => {
+  res.json({ data: lastImage });
 });
 
 io.on('connection', (socket)=> {
-  console.log('connected');
-
   socket.on('canvas-data', (data)=> {
-    console.log("data: ", data)
+    lastImage = data;
     socket.broadcast.emit('canvas-data', data);   // broadcast -> everyone except sender, emit -> everyone
   })
 })

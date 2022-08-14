@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { MoralisProvider } from 'react-moralis';
+import { NotificationProvider } from '@web3uikit/core';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,7 +12,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <MoralisProvider appId="k4zPQzvEJagiNm7QMoRVE85zZjBGZOnrO1Qp5sOU" serverUrl="https://jaw6r7frvcwq.usemoralis.com:2053/server">
-      <App />
+      <NotificationProvider>
+        <App />
+      </NotificationProvider>
     </MoralisProvider>
   </React.StrictMode>
 );
