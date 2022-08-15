@@ -9,17 +9,29 @@ const PORT = process.env.PORT || 3001;
 
 
 let lastImage;
+let lastMessages = [];
 
 app.get('/last-canvas', (req, res) => {
   res.json({ data: lastImage });
 });
 
-app.get('/send-email', (req, res) => {
-
+app.get('/last-messages', (req, res) => {
+  let amount = req.query.amount;
+  console.log("amount: ", amount)
+  if(amount==undefined || amount >= lastMessages.length) {
+    console.log("in if")
+    console.log(lastMessages);
+    res.json({ messages: lastMessages });
+  }else{
+    console.log("in else")
+    let messagesToReturn = lastMessages.slice(-amount);
+    console.log(messagesToReturn);
+    res.json({ messages: messagesToReturn });
+  }
 });
 
 io.on('connection', (socket)=> {
-  console.log("user connected")
+  console.log("user connected");
 
   // runs whenever anyone releases their mouse while drawing
   // PUBLIC
@@ -34,6 +46,7 @@ io.on('connection', (socket)=> {
   socket.on('messages-public', (data)=> {
     console.log("Received Message", data);
     io.emit('messages-public', data);
+    lastMessages.push(data)
   });
 
   socket.on('disconnect', () => {

@@ -35,10 +35,18 @@ function App() {
       <button>Public Room</button>
       <button>Create Private Room</button>
       <button>Join Private Room</button>
+      <br />
+      <label>Your Nickname:</label><br />
       <input placeholder='John' value={nickname} onChange={(e: any) => setNickname(e.target.value)} />
-      <Canvas />
+      <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
+        <div>
+          <Canvas />
+        </div>
+        <div>
+          <Chat nickname={nickname} />
+        </div>
+      </div>
     </div>
-    <Chat nickname={nickname} />
     </>
   );
 }

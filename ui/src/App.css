@@ -22,7 +22,8 @@
 .canvas {
   background-color: white;
   cursor: crosshair;
-  border-radius: 1.75rem;
+  border-top-left-radius: 1.5rem;
+  border-bottom-left-radius: 1.5rem;
 }
 
 .canvas-settings-div {
@@ -92,4 +93,39 @@
 .width-setting p {
   font-weight: 700;
   font-size: 1.25rem;
+}
+
+.chat-div {
+  width: max-content;
+  background-color: whitesmoke;
+  border-top-right-radius: 1.5rem;
+  border-bottom-right-radius: 1.5rem;
+}
+
+.chat-input-box {
+  padding: 1rem;
+}
+
+.message-div-text {
+  text-align: left;
+  margin-left: 0.5rem;
+  margin-right: auto;
+}
+
+.message-sender-div-text {
+  text-align: right;
+  margin-left: auto;
+  margin-right: 0.5rem;
+}
+
+.message-div {
+  margin-bottom: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  width: fit-content;
+  height: fit-content;
 }
