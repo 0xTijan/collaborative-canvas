@@ -2,8 +2,8 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
 const io = require('socket.io')(server, {cors: {origin: "*"}});
+const nodemailer = require("nodemailer");
 
 const PORT = process.env.PORT || 3001;
 
@@ -12,6 +12,10 @@ let lastImage;
 
 app.get('/last-canvas', (req, res) => {
   res.json({ data: lastImage });
+});
+
+app.get('/send-email', (req, res) => {
+
 });
 
 io.on('connection', (socket)=> {
@@ -28,9 +32,13 @@ io.on('connection', (socket)=> {
   // runs anytime when somebody sents a message
   // PUBLIC
   socket.on('messages-public', (data)=> {
-    console.log("Received Message", data)
-    socket.emit('messages-public', data);
-  })
+    console.log("Received Message", data);
+    io.emit('messages-public', data);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
 })
 
 

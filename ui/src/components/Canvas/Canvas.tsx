@@ -254,7 +254,6 @@ const Canvas = () => {
       }
 
       socket.on("canvas-data-public", (data) => {
-        console.log(data)
         if(canvasRef.current) {
           const canvas: HTMLCanvasElement = canvasRef.current;
           const context = canvas.getContext('2d');

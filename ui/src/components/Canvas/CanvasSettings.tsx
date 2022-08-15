@@ -13,7 +13,7 @@ interface CanvasSettingsProps {
   setColor: Function,
   clearCanvas: Function,
   lineWidth: number,
-  setLineWidth: Function,
+  setLineWidth: Function
 }
 
 type color= {
@@ -73,28 +73,26 @@ const EraserStyles = {
   marginRight: "1rem",
 }
 
-const popover = {
-  position: 'absolute',
-  zIndex: '2',
-}
-const cover = {
-  position: 'fixed',
-  top: '0px',
-  right: '0px',
-  bottom: '0px',
-  left: '0px',
-}
-
 const CanvasSettings: React.FC<CanvasSettingsProps> = ({
   color,
   setColor,
   clearCanvas,
   lineWidth,
-  setLineWidth
+  setLineWidth,
 }) => {
 
   const [isColorPickerVisible, setIsColorPickerVisible] = useState<boolean>(false);
   const [selectedColor, setSelectedColor] = useState<string>("#FFFFFF");
+  const [isCustomSelected, setIsCustomSelected] = useState<boolean>(false);
+  const [randomColor, setRandomColor] = useState<string>("#FFFFFF");
+  const [isRandomSelected, setIsRadomSelected] = useState<boolean>(false);
+
+  const getRandomColor = () => {
+    const _randomColor = Math.floor(Math.random()*16777215).toString(16);
+    handleSelectClick(`#${_randomColor}`);
+    setIsRadomSelected(true);
+    setRandomColor(`#${_randomColor}`);
+  }
 
   const getSelected = (cssColorValue: string) => {
     if(color==cssColorValue) return true;
@@ -107,12 +105,26 @@ const CanvasSettings: React.FC<CanvasSettingsProps> = ({
   }
 
   const getCustomBg = () => {
+    if(isCustomSelected) return "grey";
+    else return "transparent"
+  }
 
+  const getRandomBg = () => {
+    if(isRandomSelected) return "grey";
+    else return "transparent"
+  }
+
+  const handleSelectClick = (color: string) => {
+    setColor(color);
+    setIsCustomSelected(false);
+    setIsRadomSelected(false)
   }
 
   const handleCustomClick = () => {
     setSelectedColor(selectedColor);
     setIsColorPickerVisible(true);
+    setIsCustomSelected(true);
+    setIsRadomSelected(false);
   }
 
   useEffect(() => {
@@ -131,13 +143,13 @@ const CanvasSettings: React.FC<CanvasSettingsProps> = ({
               colorName={color.colorName}
               cssColorValue={color.cssColorValue}
               selected={getSelected(color.cssColorValue)}
-              setColor={setColor}
+              setColor={() => handleSelectClick(color.cssColorValue)}
             />
           )
         })}
         <div
           className="select-color"
-          style={{ backgroundColor: getEraserBg() }}
+          style={{ backgroundColor: getCustomBg() }}
           onClick={handleCustomClick}
         >
           <div style={{...EraserStyles, backgroundColor: selectedColor}}>
@@ -156,10 +168,10 @@ const CanvasSettings: React.FC<CanvasSettingsProps> = ({
         ):null}    
         <div
           className="select-color"
-          style={{ backgroundColor: getEraserBg() }}
-          onClick={() => setColor("white")}
+          style={{ backgroundColor: getRandomBg() }}
+          onClick={getRandomColor}
         >
-          <div style={{...EraserStyles, backgroundColor: "white"}}>
+          <div style={{...EraserStyles, backgroundColor: randomColor }}>
             <FaRandom className="icon" />
           </div>
           <span style={{ color: "white", marginTop: "1vh" }}>Random</span>
@@ -167,7 +179,7 @@ const CanvasSettings: React.FC<CanvasSettingsProps> = ({
         <div
           className="select-color"
           style={{ backgroundColor: getEraserBg() }}
-          onClick={() => setColor("white")}
+          onClick={() => handleSelectClick("white")}
         >
           <div style={{...EraserStyles, backgroundColor: "white"}}>
             <CgErase className="icon" />
