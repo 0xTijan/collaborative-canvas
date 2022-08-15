@@ -15,9 +15,17 @@ app.get('/last-canvas', (req, res) => {
 });
 
 io.on('connection', (socket)=> {
-  socket.on('canvas-data', (data)=> {
+  // runs whenever anyone releases their mouse while drawing
+  // PUBLIC
+  socket.on('canvas-data-public', (data)=> {
     lastImage = data;
-    socket.broadcast.emit('canvas-data', data);   // broadcast -> everyone except sender, emit -> everyone
+    socket.broadcast.emit('canvas-data-public', data);   // broadcast -> everyone except sender, emit -> everyone
+  });
+  
+  // runs anytime when somebody sents a message
+  // PUBLIC
+  socket.on('messages-public', (data)=> {
+    socket.emit('messages-public', data);
   })
 })
 

@@ -26,7 +26,7 @@ const Canvas = () => {
   const sendCanvasImage = () => {
     let url = getImageUrl();
     if(url) {
-      socket.emit('canvas-data', url);
+      socket.emit('canvas-data-public', url);
     }
   }
 
@@ -202,7 +202,7 @@ const Canvas = () => {
         }
       }
 
-      socket.on("canvas-data", (data) => {
+      socket.on("canvas-data-public", (data) => {
         console.log(data)
         if(canvasRef.current) {
           const canvas: HTMLCanvasElement = canvasRef.current;
@@ -237,6 +237,7 @@ const Canvas = () => {
         <button onClick={downloadImage}>Download Canvas</button>
         <button onClick={() => {}}>Mint As NFT</button>
         <button onClick={() => {}}>Send it to my Email</button>
+        <button onClick={() => {}}>Tweet It</button>
       </>
     </>
   )
