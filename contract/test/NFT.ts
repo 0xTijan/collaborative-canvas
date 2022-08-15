@@ -24,9 +24,12 @@ describe("CanvasNFT", function () {
   describe("Minting", function () {
     it("Should mint NFT", async function () {
       const { nft, acc0 } = await loadFixture(deployUpgradeableProxy);
-      await nft.mint(acc0.address, 1);
-      let nftBalane = await nft.balanceOf(acc0.address)
-      expect(nftBalane).to.equal(1);
+      await nft.mint("uri");
+      let nftBalance = await nft.balanceOf(acc0.address)
+      expect(nftBalance).to.equal(1);
+      let tokenUri = await nft.tokenURI(1);
+      console.log(tokenUri);
+      expect(tokenUri).to.equal("uri")
     });
   });
 });

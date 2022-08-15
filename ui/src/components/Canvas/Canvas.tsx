@@ -1,11 +1,13 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import CanvasSettings from "./CanvasSettings";
-import { io } from "socket.io-client";
-import { inflateRaw } from "zlib";
 import { useNotification } from "@web3uikit/core";
 import { getNotification } from "../../helpers/helpers";
+import { io } from "socket.io-client";
+import { useMoralis, useWeb3Contract } from "react-moralis";
+import { getAbi, getAddress } from "../../helpers/contract";
 
-const socket = io("http://localhost:3001/");
+const URL = "http://localhost:3001/";
+const socket = io(URL, { autoConnect: true });
 
 type Coordinate = {
   x: number;
@@ -22,6 +24,55 @@ const Canvas = () => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const notify = useNotification();
+  const { authenticate, Moralis, isWeb3Enabled, enableWeb3 } = useMoralis();
+  const Contract = useWeb3Contract({
+    contractAddress: getAddress(),
+    functionName: "mint",
+    abi: getAbi()
+  });
+
+  const mintNFT = async() => {
+    try{
+      const image = getImageUrl();
+      if(image) {
+        if(!isWeb3Enabled) {
+          await enableWeb3({ chainId: 80001 });
+        }
+        
+        const _image = new Moralis.File("image.png", { base64: image });
+        await _image.saveIPFS();
+        
+        const object = {
+          name: "CanvasNFT",
+          description: "Canvas NFTs are NFT created from collab-convas app.",
+          image: _image.hash()
+        }        
+        const URI = new Moralis.File("file.json", {
+          base64: btoa(JSON.stringify(object)),
+        });
+        await URI.saveIPFS();
+        
+        const _params = {
+          contractAddress: getAddress(),
+          functionName: "mint",
+          abi: getAbi(),
+          params: {
+            uri: `https://gateway.moralisipfs.com/ipfs/${URI.hash()}`
+          }
+        }
+
+        let tx: any = await Contract.runContractFunction({ params: _params});
+        if(tx) {
+          let receipt = await tx.wait();
+          let id = receipt.logs[0].topics[3];
+          alert(`Your Canvas NFT was minted!!\nView it here:\nhttps://testnets.opensea.io/assets/mumbai/0x354e4a68435890edfbec9811cca3dde9dbca222d/${Number(id)}`)
+        }
+      }
+    }catch(err: any){
+      console.log(err)
+      notify(getNotification("error", "Something went wrong while minting!", err.message))
+    }
+  }
 
   const sendCanvasImage = () => {
     let url = getImageUrl();
@@ -235,7 +286,7 @@ const Canvas = () => {
       
       <>
         <button onClick={downloadImage}>Download Canvas</button>
-        <button onClick={() => {}}>Mint As NFT</button>
+        <button onClick={mintNFT}>Mint As NFT</button>
         <button onClick={() => {}}>Send it to my Email</button>
         <button onClick={() => {}}>Tweet It</button>
       </>
@@ -244,3 +295,37 @@ const Canvas = () => {
 }
 
 export default Canvas;
+
+
+/**
+ * 
+ *   const login = async () => {
+    if (!isAuthenticated) {
+      await authenticate({ 
+        provider: "metamask",
+        chainId: 43113,
+        signingMessage: "Authenticate for better experience and additional features in X!"
+      });
+    }
+  }
+
+  useEffect(() => {
+    console.log(user)
+  }, [user]);
+
+  const mintNFT = async() => {
+    try{
+      const image = getImageUrl();
+      if(image) {
+        const file = new Moralis.File("canvas-nft.png", { base64: image });
+        await file.saveIPFS();
+        let hash = file.hash();
+        console.log(hash)
+        notify(getNotification("error", "Success!", "CanvasNFT was minted successfully!"));
+      }
+    }catch(err: any){
+      console.log(err)
+      notify(getNotification("error", "Something went wrong while minting!", err.message))
+    }
+  }
+ */

@@ -16,8 +16,8 @@ function App() {
       <button>Create Private Room</button>
       <button>Join Private Room</button>
       <Canvas />
-      <Chat />
     </div>
+    <Chat />
     </>
   );
 }

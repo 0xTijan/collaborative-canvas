@@ -3,14 +3,14 @@
   "proxies": [
     {
       "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0x3cc2fdcaa7ed5575d00d64f184f46af6d9d29257a0e1f8ef110c00871a4d158d",
+      "txHash": "0xfae9c404d990bc0acc2f47816e84be438b6dda5ced899197aaabdd83484ea453",
       "kind": "uups"
     }
   ],
   "impls": {
-    "0cff0fc273a984789aa019534e5847bb7a22879874fa4eaffc825adfe3bc8365": {
+    "eb7b798867d7bf07ca699a71bad4416e9c60ca025237dc26a5513aa9536c584f": {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x03c88d20aeff78fee7ab2eaf33140fcbfc6ba138a5c936b68dfbb18f9aa0b7f8",
+      "txHash": "0xfca66a99e78b519cd8689444a2506f82a195196a142fe585a3c7535acb9636c8",
       "layout": {
         "storage": [
           {
@@ -133,6 +133,30 @@
             "type": "t_array(t_uint256)44_storage",
             "contract": "ERC721Upgradeable",
             "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:465"
+          },
+          {
+            "label": "_tokenURIs",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_mapping(t_uint256,t_string_storage)",
+            "contract": "ERC721URIStorageUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\extensions\\ERC721URIStorageUpgradeable.sol:21"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "302",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ERC721URIStorageUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC721\\extensions\\ERC721URIStorageUpgradeable.sol:74"
+          },
+          {
+            "label": "_id",
+            "offset": 0,
+            "slot": "351",
+            "type": "t_uint256",
+            "contract": "CanvasNFT",
+            "src": "contracts\\NFT.sol:12"
           }
         ],
         "types": {
@@ -170,6 +194,10 @@
           },
           "t_mapping(t_uint256,t_address)": {
             "label": "mapping(uint256 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_string_storage)": {
+            "label": "mapping(uint256 => string)",
             "numberOfBytes": "32"
           },
           "t_string_storage": {
