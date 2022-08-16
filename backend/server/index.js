@@ -112,21 +112,19 @@ io.on('connection', (socket)=> {
 
   // JOIN ROOM
   socket.on("join-room", (room) => {
-    socket.join(room);
-    console.log("joined", socket.rooms);
-    socket.emit("joined-room", room);
-    //io.to('Room Name').emit('new event', 'Updates');
+    if (io.sockets.adapter.rooms.has(room)) {
+      socket.join(room);
+      console.log("joined", socket.rooms);
+      socket.emit("joined-room", room);
+    } else {
+      socket.emit("errors", "Cannot join. Room doesn't exist!");
+    };
   });
 
   // LEAVE ROOM
   socket.on("leave-room", (room) => {
     socket.leave(room);
     console.log("user left room: ", room);
-  });
-
-  socket.on("test", (roomId) => {
-    console.log("Emitting: new message, to: ", roomId)
-    io.to(roomId).emit("test", "NEw message");
   });
 
   // ROOM MESSAGES

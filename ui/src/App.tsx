@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+  import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import FetchComponent from './components/FetchComponent';
@@ -9,8 +9,14 @@ import CanvasRooms from './components/Rooms/CanvasRooms';
 import socket from './socket';
 import { User } from './helpers/types';
 import ChatRooms from './components/Rooms/ChatRooms';
+import ErrorModal from './components/Modals/ErrorModal';
 
 function App() {
+
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false);
+  const openErrorModal = () => setIsErrorModalVisible(true);
+  const closeErrorModal = () => setIsErrorModalVisible(false);
+  const [errorText, setErrorText] = useState<string>("");
 
   const [room, setRoom] = useState<string>("");
   const [roomInput, setRoomInput] = useState<string>("");
@@ -53,7 +59,14 @@ function App() {
     console.log("connected: ", socket.connected); 
     socket.on("test", (message) => {
       console.log("new message received: ", message)
-    })
+    });
+    socket.on("errors", (error) => {
+      if(error.length>0) {
+        setErrorText(error);
+        openErrorModal();
+      }
+      console.log(error)
+    });
   }, []);
 
   const joinRoom = () => {
@@ -64,11 +77,6 @@ function App() {
 
   const createRoom = () => {
     socket.emit("create-room", room);
-  }
-
-  const sendMessage = () => {
-    console.log(room)
-    socket.emit("test", room)
   }
 
   useEffect(() => {
@@ -89,7 +97,7 @@ function App() {
       {/*<h1 className='title'>Real Time Canvas & Chat</h1>*/}
       {!isLoggedIn ? (
         <>
-          <label className='nickname-text'>Your Nickname:</label><br />
+          <label className='nickname-text'>Nickname:</label><br />
           <input placeholder='John' value={nickname} onChange={(e: any) => setNickname(e.target.value)} />
           <button onClick={login}>Go</button>
         </>
@@ -131,6 +139,13 @@ function App() {
       )}
 
     </div>
+
+    <ErrorModal
+      text={errorText}
+      title="Error!"
+      isVisible={isErrorModalVisible}
+      close={closeErrorModal}
+    />
     </>
   );
 }

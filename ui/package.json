@@ -4,8 +4,11 @@
   "private": true,
   "proxy": "http://localhost:3001",
   "dependencies": {
+    "@craco/craco": "^6.4.5",
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
+    "@headlessui/react": "^1.6.6",
+    "@heroicons/react": "^1.0.6",
     "@mui/material": "^5.10.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
@@ -55,6 +58,9 @@
     ]
   },
   "devDependencies": {
-    "@types/react-color": "^3.0.6"
+    "@types/react-color": "^3.0.6",
+    "autoprefixer": "^9.8.8",
+    "postcss": "^7.0.39",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17"
   }
 }

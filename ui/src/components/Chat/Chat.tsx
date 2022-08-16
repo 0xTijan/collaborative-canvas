@@ -18,7 +18,8 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
   const sendMessage = () => {
     if(toSend.length!==0) {
       const d = new Date();
-      let date = `${d.getHours()}:${d.getMinutes()}`
+      let minutes = d.getMinutes()<10 ? `0${d.getMinutes()}`:d.getMinutes();
+      let date = `${d.getHours()}:${minutes}`
       let _message: Message = {
         sender: nickname,
         message: toSend,
@@ -43,6 +44,7 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
   useEffect(() => {
     (async function get() {
       let url = `/last-messages${fetchAmount==0 ? "":`?=${fetchAmount}`}`;
+      console.log("url: ", url)
       const response = await fetch(url);
       const lastMessages = await response.json();
       setMessages(lastMessages.messages);
