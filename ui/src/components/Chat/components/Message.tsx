@@ -11,7 +11,7 @@ const MessageComponent: React.FC<MessageProps> = ({ message, nickname }) => {
 
   return(
     <div className={`${isSender ? "message-sender-div-text" : "message-div-text"} message-div`}>
-      <span><b>{message.sender} {isSender ? "(you)":""}</b></span>
+      <span><b>{message.sender} {isSender ? "(you)":""}{"   "}{message.date}</b></span>
       <br />
       <span><i>{message.message}</i></span>
     </div>

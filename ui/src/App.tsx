@@ -27,6 +27,21 @@ function App() {
     }
   }, [nickname]);
 
+  const test = () => {
+    let data = {
+      to: "errors@tijan.dev",
+      subject: "HTML Test",
+      htmlTemplateNumber: 0
+    }
+    fetch('/send-email',
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+    );
+    console.log("called")
+  }
+
   return (
     <>
     <div className="App">
@@ -36,7 +51,7 @@ function App() {
       <button>Create Private Room</button>
       <button>Join Private Room</button>
       <br />
-      <label>Your Nickname:</label><br />
+      <label className='nickname-text'>Your Nickname:</label><br />
       <input placeholder='John' value={nickname} onChange={(e: any) => setNickname(e.target.value)} />
       <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
         <div>
@@ -47,6 +62,8 @@ function App() {
         </div>
       </div>
     </div>
+
+    <button onClick={test}>test</button>
     </>
   );
 }

@@ -195,7 +195,7 @@ const CanvasSettings: React.FC<CanvasSettingsProps> = ({
           aria-label="Default"
           valueLabelDisplay="auto"
           min={1}
-          max={100}
+          max={150}
           color="primary"
           value={lineWidth}
           onChange={(e: any) => setLineWidth(e.target.value)}

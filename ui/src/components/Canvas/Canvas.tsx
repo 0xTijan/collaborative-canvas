@@ -187,6 +187,7 @@ const Canvas = () => {
     const canvas: HTMLCanvasElement = canvasRef.current;
     const context = canvas.getContext('2d');
     context?.clearRect(0, 0, canvas.width, canvas.height);
+    sendCanvasImage();
   }
 
   useEffect(() => {
@@ -294,37 +295,3 @@ const Canvas = () => {
 }
 
 export default Canvas;
-
-
-/**
- * 
- *   const login = async () => {
-    if (!isAuthenticated) {
-      await authenticate({ 
-        provider: "metamask",
-        chainId: 43113,
-        signingMessage: "Authenticate for better experience and additional features in X!"
-      });
-    }
-  }
-
-  useEffect(() => {
-    console.log(user)
-  }, [user]);
-
-  const mintNFT = async() => {
-    try{
-      const image = getImageUrl();
-      if(image) {
-        const file = new Moralis.File("canvas-nft.png", { base64: image });
-        await file.saveIPFS();
-        let hash = file.hash();
-        console.log(hash)
-        notify(getNotification("error", "Success!", "CanvasNFT was minted successfully!"));
-      }
-    }catch(err: any){
-      console.log(err)
-      notify(getNotification("error", "Something went wrong while minting!", err.message))
-    }
-  }
- */

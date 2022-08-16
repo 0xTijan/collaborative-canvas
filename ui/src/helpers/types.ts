@@ -1,4 +1,5 @@
 export type Message = {
   sender: string,
-  message: string
+  message: string,
+  date: string
 }
