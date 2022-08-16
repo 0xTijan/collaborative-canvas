@@ -2,12 +2,9 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import CanvasSettings from "./CanvasSettings";
 import { useNotification } from "@web3uikit/core";
 import { getNotification } from "../../helpers/helpers";
-import { io } from "socket.io-client";
 import { useMoralis, useWeb3Contract } from "react-moralis";
 import { getAbi, getAddress } from "../../helpers/contract";
-
-const URL = "http://localhost:3001/";
-const socket = io(URL, { autoConnect: true });
+import socket from "./../../socket";
 
 type Coordinate = {
   x: number;

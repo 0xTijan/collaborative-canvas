@@ -34,14 +34,96 @@ app.get('/last-messages', (req, res) => {
   }
 });
 
+app.get("/rooms", (req, res) => {
+  let roomId = req.query.roomId;
+  //this is an ES6 Set of all client ids in the room
+  const clients = io.sockets.adapter.rooms.get(roomId);
+
+  //to get the number of clients in this room
+  const numClients = clients ? clients.size : 0;
+  res.json({ rooms: clients })
+});
+
+const getRandomName = () => {
+  let text = "";
+  let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (let i = 0; i < 10; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
+
+io.use((socket, next) => {
+  const username = socket.handshake.auth.username;
+  if (!username) {
+    return next(new Error("invalid username"));
+  }
+  socket.username = username;
+  next();
+});
+
+
 io.on('connection', (socket)=> {
-  console.log("user connected");
+  const users = [];
+  for (let [id, socket] of io.of("/").sockets) {
+    users.push({
+      userID: id,
+      username: socket.username,
+    });
+  }
+  socket.emit("users", users);
+  console.log(users);
+
+  // CREATE ROOM
+  socket.on('create-room', async function (room) {
+    let roomName = getRandomName();
+    socket.join(roomName);
+    console.log("joined", socket.rooms);
+    socket.emit("joined-room", roomName);
+  });
+
+  // JOIN ROOM
+  socket.on("join-room", (room) => {
+    socket.join(room);
+    console.log("joined", socket.rooms);
+    socket.emit("joined-room", room);
+    //io.to('Room Name').emit('new event', 'Updates');
+  });
+
+  // LEAVE ROOM
+  socket.on("leave-room", (room) => {
+    socket.leave(room);
+    console.log("user left room: ", room);
+  });
+
+  socket.on("test", (roomId) => {
+    console.log("Emitting: new message, to: ", roomId)
+    io.to(roomId).emit("test", "NEw message");
+  });
+
+  // ROOM MESSAGES
+  socket.on("messages-room", (data) => {
+    console.log("in messages-room")
+    let { roomId, message } = data;
+    console.log("sending ", message, " to: ", roomId);
+    io.in(roomId).emit("messages-room", message);
+  })
 
   // PUBLIC CANVAS
   socket.on('canvas-data-public', (data)=> {
     lastImage = data;
     console.log("Received Image Data for public board.")
     socket.broadcast.emit('canvas-data-public', data);   // broadcast -> everyone except sender, emit -> everyone
+  });
+
+  // ROOMS Canvas
+  socket.on('canvas-rooms', (data)=> {
+    const { image, roomId } = data;
+    console.log(data)
+    //lastImage = image;
+    console.log("Received Image Data for public board.")
+    io.in(roomId).emit('canvas-rooms', data);   // broadcast -> everyone except sender, emit -> everyone
   });
   
   // PUBLIC MESSAGES
@@ -57,6 +139,7 @@ io.on('connection', (socket)=> {
 })
 
 
+
 // must be at the bottom
 server.listen(PORT, () => {
   console.log('listening on: ', PORT);
@@ -64,40 +147,3 @@ server.listen(PORT, () => {
 
 // if you change any code here you need to restart server (ctrl+c, npm start)
 
-/**
- * 
- * 
- * 
-app.post("/send-email", async(req, res) => {
-  //! is empty!!!
-  let { to, subject, htmlTemplateNumber } = req.body;
-  console.log(to, subject, htmlTemplateNumber);
-  /*let testAccount = await nodemailer.createTestAccount();
-
-  let transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: testAccount.user, // generated ethereal user
-      pass: testAccount.pass, // generated ethereal password
-    },
-  }); 
-
-  // send mail with defined transport object
-  let info = await transporter.sendMail({
-    from: "CanvasNFT", // sender address
-    to: to, // list of receivers
-    subject: subject, // Subject line
-    html: htmlTemplates[htmlTemplateNumber], // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
-  // Preview only available when sending through an Ethereal account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-  // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
-});
- * 
- */
