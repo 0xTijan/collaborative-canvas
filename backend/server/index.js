@@ -3,22 +3,11 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server, {cors: {origin: "*"}});
-const nodemailer = require("nodemailer");
-const cors = require("cors");
-const bodyParser = require("body-parser");
 const PORT = process.env.PORT || 3001;
-
-const htmlTemplates = [
-  `<h1>Hello World</h1>
-  <p>This is a small text</p>
-  <p style="color:green;">This is a small green text</p>
-  <i>This is italic text</i>
-  <button style="background-color:blue;">This is a button</button>`
-];
 
 let lastImage;
 let lastPublicMessages = [];
-
+let messages = new Map();
 
 app.get('/last-canvas', (req, res) => {
   res.json({ data: lastImage });
@@ -34,21 +23,11 @@ app.get('/last-messages', (req, res) => {
   }
 });
 
-app.get("/rooms", (req, res) => {
-  let roomId = req.query.roomId;
-  //this is an ES6 Set of all client ids in the room
-  const clients = io.sockets.adapter.rooms.get(roomId);
-
-  //to get the number of clients in this room
-  const numClients = clients ? clients.size : 0;
-  res.json({ rooms: clients })
-});
-
 const getRandomName = () => {
   let text = "";
   let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-  for (let i = 0; i < 10; i++)
+  for (let i = 0; i < 15; i++)
     text += possible.charAt(Math.floor(Math.random() * possible.length));
 
   return text;
@@ -63,6 +42,54 @@ io.use((socket, next) => {
   next();
 });
 
+io.of("/").adapter.on("create-room", (room) => {
+  const d = new Date();
+  let date = `${d.getHours()}:${d.getMinutes()}`
+  let _message = {
+    sender: "",
+    date: date,
+    message: `Room was created.`
+  }
+  messages.set(room, [_message]);
+  io.to(room).emit("messages-room", {
+    roomId: room,
+    message: _message
+  });
+  console.log(`Private room with id ${room}.`);
+});
+
+io.of("/").adapter.on("join-room", (room, id) => {
+  const d = new Date();
+  let date = `${d.getHours()}:${d.getMinutes()}`;
+  let socket = io.sockets.sockets.get(id);
+  let newMessage = {
+    sender: "",
+    date: date,
+    message: `${socket.username} has joined.`
+  }
+  let _messages = messages.get(room);
+  messages.set(room, [..._messages, newMessage]);
+  io.to(room).emit("messages-room", {
+    roomId: room,
+    message: newMessage
+  })
+  console.log(`socket ${socket.username} has joined room ${room}`);
+});
+
+io.of("/").adapter.on("leave-room", (room, id) => {
+  const d = new Date();
+  let date = `${d.getHours()}:${d.getMinutes()}`;
+  let socket = io.sockets.sockets.get(id);
+  io.to(room).emit("messages-room", {
+    roomId: room,
+    message: {
+      sender: "",
+      date: date,
+      message: `${socket.username} has left.`
+    }
+  })
+  console.log(`socket ${id} has left room ${room}`);
+});
 
 io.on('connection', (socket)=> {
   const users = [];
@@ -107,7 +134,7 @@ io.on('connection', (socket)=> {
     console.log("in messages-room")
     let { roomId, message } = data;
     console.log("sending ", message, " to: ", roomId);
-    io.in(roomId).emit("messages-room", message);
+    io.in(roomId).emit("messages-room", data);
   })
 
   // PUBLIC CANVAS
@@ -147,3 +174,4 @@ server.listen(PORT, () => {
 
 // if you change any code here you need to restart server (ctrl+c, npm start)
 
+// delete room: https://stackoverflow.com/questions/23342395/how-to-delete-a-room-in-socket-io

@@ -40,6 +40,7 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
       console.log("messages ", messages)
       if(data!=messages[messages.length-1]) {
         setMessages(prev => [...prev, data]);
+        console.log("added")
         setToSend("");
       }
     });

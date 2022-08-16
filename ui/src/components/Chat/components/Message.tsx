@@ -8,9 +8,18 @@ interface MessageProps {
 
 const MessageComponent: React.FC<MessageProps> = ({ message, nickname }) => {
   let isSender = message.sender==nickname;
+  console.log(message)
+
+  const getClassName = () => {
+    let isSender = message.sender === nickname;
+    let isSystem = message.sender === "";
+    if(isSystem) return "message-system-div-text";
+    else if(isSender) return "message-sender-div-text";
+    else return "message-div-text";
+  }
 
   return(
-    <div className={`${isSender ? "message-sender-div-text" : "message-div-text"} message-div`}>
+    <div className={`${getClassName()} message-div`}>
       <span><b>{message.sender} {isSender ? "(you)":""}{"   "}{message.date}</b></span>
       <br />
       <span><i>{message.message}</i></span>

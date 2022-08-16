@@ -120,6 +120,13 @@
   margin-right: 0.5rem;
 }
 
+.message-system-div-text {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: rgb(220, 255, 220) !important;
+}
+
 .message-div {
   margin-bottom: 0.5rem;
   padding-top: 0.5rem;

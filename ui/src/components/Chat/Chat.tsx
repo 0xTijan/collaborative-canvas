@@ -42,7 +42,8 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
 
   useEffect(() => {
     (async function get() {
-      const response = await fetch(`/last-messages?amount=${fetchAmount}`);
+      let url = `/last-messages${fetchAmount==0 ? "":`?=${fetchAmount}`}`;
+      const response = await fetch(url);
       const lastMessages = await response.json();
       setMessages(lastMessages.messages);
     })();
@@ -61,6 +62,7 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
             <option value={25}>25</option>
             <option value={50}>50</option>
             <option value={100}>100</option>
+            <option value={0}>all</option>
           </select>
         messages</p>
         {messages.map((message: Message, index: number) => {

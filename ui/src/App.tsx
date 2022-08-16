@@ -18,23 +18,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [user, setUser] = useState<User|null>(null);
 
-  const getRandomName = () => {
-    let text = "";
-    let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  
-    for (let i = 0; i < 5; i++)
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-  
-    return text;
-  }
-
-  useEffect(() => {
-    if(nickname.length==0) {
-      let _name = getRandomName();
-      setNickname(_name);
-    }
-  }, [nickname]);
-
   const login = () => {
     if(nickname.length>0) {
       console.log(socket.connected);
@@ -95,6 +78,7 @@ function App() {
   const leaveRoom = () => {
     if(room.length>0) {
       socket.emit("leave-room", room);
+      setRoom("");
     }
   }
 
@@ -103,14 +87,9 @@ function App() {
     <>
     <div className="App">
       {/*<h1 className='title'>Real Time Canvas & Chat</h1>*/}
-      <button>Solo</button>
-      <button>Public Room</button>
-      <button>Create Private Room</button>
-      <button>Join Private Room</button>
-      <br />
       {!isLoggedIn ? (
         <>
-          <label className='nickname-text'>Your Username:</label><br />
+          <label className='nickname-text'>Your Nickname:</label><br />
           <input placeholder='John' value={nickname} onChange={(e: any) => setNickname(e.target.value)} />
           <button onClick={login}>Go</button>
         </>
@@ -119,15 +98,24 @@ function App() {
           <p className='nickname-text'>{user?.username}</p>
           {room.length==0 ? (
             <>
-              <input placeholder='Room' value={roomInput} onChange={(e: any) => setRoomInput(e.target.value)} />
+              <input placeholder='Room Code' value={roomInput} onChange={(e: any) => setRoomInput(e.target.value)} />
               <button onClick={joinRoom}>Join Private Room</button>
               <br />
               <button onClick={createRoom}>Create Private Room</button>
+              <p className='nickname-text'>Public Canvas</p>
+              <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
+                <div>
+                  <Canvas />
+                </div>
+                <div>
+                  <Chat nickname={nickname} />
+                </div>
+              </div>
             </>
           ):(
             <>
+              <p className='nickname-text'>Private Canvas</p>
               <p>Room Code: {room}</p>
-              <button onClick={sendMessage}>send</button>
               <button onClick={leaveRoom}>leave</button>
               <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
                 <div>
@@ -142,16 +130,7 @@ function App() {
         </>
       )}
 
-      <p className='nickname-text'>Public Canvas</p>
-        <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
-          <div>
-            <Canvas />
-          </div>
-          <div>
-            <Chat nickname={nickname} />
-          </div>
-        </div>
-      </div>
+    </div>
     </>
   );
 }
