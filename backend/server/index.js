@@ -13,6 +13,9 @@ app.get('/last-canvas', (req, res) => {
   res.json({ data: lastImage });
 });
 
+//! get members
+app.get("/members")
+
 app.get('/last-messages', (req, res) => {
   let amount = req.query.amount;
   if(amount==undefined || amount >= lastPublicMessages.length) {
@@ -44,7 +47,8 @@ io.use((socket, next) => {
 
 io.of("/").adapter.on("create-room", (room) => {
   const d = new Date();
-  let date = `${d.getHours()}:${d.getMinutes()}`
+  let minutes = d.getMinutes()<10 ? `0${d.getMinutes()}`:d.getMinutes();
+  let date = `${d.getHours()}:${minutes}`
   let _message = {
     sender: "",
     date: date,
@@ -60,7 +64,8 @@ io.of("/").adapter.on("create-room", (room) => {
 
 io.of("/").adapter.on("join-room", (room, id) => {
   const d = new Date();
-  let date = `${d.getHours()}:${d.getMinutes()}`;
+  let minutes = d.getMinutes()<10 ? `0${d.getMinutes()}`:d.getMinutes();
+  let date = `${d.getHours()}:${minutes}`
   let socket = io.sockets.sockets.get(id);
   let newMessage = {
     sender: "",
@@ -73,12 +78,15 @@ io.of("/").adapter.on("join-room", (room, id) => {
     roomId: room,
     message: newMessage
   })
+  let members =  io.sockets.adapter.rooms.get(room).size;
+  io.to(room).emit("members", members)
   console.log(`socket ${socket.username} has joined room ${room}`);
 });
 
 io.of("/").adapter.on("leave-room", (room, id) => {
   const d = new Date();
-  let date = `${d.getHours()}:${d.getMinutes()}`;
+  let minutes = d.getMinutes()<10 ? `0${d.getMinutes()}`:d.getMinutes();
+  let date = `${d.getHours()}:${minutes}`
   let socket = io.sockets.sockets.get(id);
   io.to(room).emit("messages-room", {
     roomId: room,
@@ -88,6 +96,8 @@ io.of("/").adapter.on("leave-room", (room, id) => {
       message: `${socket.username} has left.`
     }
   })
+  let members =  io.sockets.adapter.rooms.get(room).size;
+  io.to(room).emit("members", members)
   console.log(`socket ${id} has left room ${room}`);
 });
 
@@ -116,10 +126,19 @@ io.on('connection', (socket)=> {
       socket.join(room);
       console.log("joined", socket.rooms);
       socket.emit("joined-room", room);
+      let members =  io.sockets.adapter.rooms.get(room).size;
+      console.log("members: ", members)
+      io.to(room).emit("members", members)
     } else {
       socket.emit("errors", "Cannot join. Room doesn't exist!");
     };
   });
+
+  // GET ROOM MEMBERS
+  socket.on("get-num-of-members", (room) => {
+    let members =  io.sockets.adapter.rooms.get(room).size;
+    io.to(room).emit("members", members);
+  })
 
   // LEAVE ROOM
   socket.on("leave-room", (room) => {

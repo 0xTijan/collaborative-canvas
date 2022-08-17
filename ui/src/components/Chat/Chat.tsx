@@ -18,22 +18,22 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
   const sendMessage = () => {
     if(toSend.length!==0) {
       const d = new Date();
-      let minutes = d.getMinutes()<10 ? `0${d.getMinutes()}`:d.getMinutes();
-      let date = `${d.getHours()}:${minutes}`
-      let _message: Message = {
+      const minutes = d.getMinutes()<10 ? `0${d.getMinutes()}`:d.getMinutes();
+      const date = `${d.getHours()}:${minutes}`;
+      const _message: Message = {
         sender: nickname,
         message: toSend,
         date: date
-      }
+      };
       socket.emit("messages-public", _message);
     }
-  }
+  };
 
   useEffect(() => {
     socket.on("messages-public", (data) => {
-      console.log(data!=messages[messages.length-1])
-      console.log("data: ", data)
-      console.log("messages ", messages)
+      console.log(data!=messages[messages.length-1]);
+      console.log("data: ", data);
+      console.log("messages ", messages);
       if(data!=messages[messages.length-1]) {
         setMessages(prev => [...prev, data]);
         setToSend("");
@@ -43,8 +43,8 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
 
   useEffect(() => {
     (async function get() {
-      let url = `/last-messages${fetchAmount==0 ? "":`?=${fetchAmount}`}`;
-      console.log("url: ", url)
+      const url = `/last-messages${fetchAmount==0 ? "":`?=${fetchAmount}`}`;
+      console.log("url: ", url);
       const response = await fetch(url);
       const lastMessages = await response.json();
       setMessages(lastMessages.messages);
@@ -52,7 +52,7 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
   }, [fetchAmount]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+    bottomRef.current?.scrollIntoView({behavior: "smooth"});
   }, [messages]);
 
   return(
@@ -76,11 +76,11 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
                 message={message}
                 nickname={nickname}
               />
-            )
+            );
           }
         })}
         
-{/*        <div ref={bottomRef} />
+        {/*        <div ref={bottomRef} />
 */}
         <div className="chat-input-box">
           <input placeholder="Type something . . ." value={toSend} onChange={(e: any) => setToSend(e.target.value)} />
@@ -88,7 +88,7 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Chat;

@@ -4,7 +4,7 @@ interface DisplaySelectColorProps {
   colorName: string,
   selected: boolean,
   cssColorValue: string,
-  setColor: Function
+  setColor: (color: string) => void
 }
 
 const DisplaySelectColor: React.FC<DisplaySelectColorProps> = ({
@@ -23,7 +23,7 @@ const DisplaySelectColor: React.FC<DisplaySelectColorProps> = ({
       marginLeft: "1rem",
       marginRight: "1rem",
     };
-  }
+  };
 
   const getBg = (selected: boolean) => selected ? "#9c9c9c":"transparent" ;
 
@@ -36,7 +36,7 @@ const DisplaySelectColor: React.FC<DisplaySelectColorProps> = ({
       <div className="color-circle" style={getStyles()}></div>
       <span style={{ color: "white", marginTop: "1vh" }}>{colorName}</span>
     </div>
-  )
-}
+  );
+};
 
 export default DisplaySelectColor;

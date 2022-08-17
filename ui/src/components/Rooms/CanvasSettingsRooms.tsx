@@ -10,10 +10,10 @@ import { ChromePicker } from "react-color";
 
 interface CanvasSettingsProps {
   color: string,
-  setColor: Function,
-  clearCanvas: Function,
+  setColor: (color: string) => void,
+  clearCanvas: () => void,
   lineWidth: number,
-  setLineWidth: Function
+  setLineWidth: (width: number) => void
 }
 
 type color= {
@@ -71,7 +71,7 @@ const EraserStyles = {
   borderWidth: "4px",
   marginLeft: "1rem",
   marginRight: "1rem",
-}
+};
 
 const CanvasSettingsRooms: React.FC<CanvasSettingsProps> = ({
   color,
@@ -92,46 +92,46 @@ const CanvasSettingsRooms: React.FC<CanvasSettingsProps> = ({
     handleSelectClick(`#${_randomColor}`);
     setIsRadomSelected(true);
     setRandomColor(`#${_randomColor}`);
-  }
+  };
 
   const getSelected = (cssColorValue: string) => {
     if(color==cssColorValue) return true;
     else return false;
-  }
+  };
 
   const getEraserBg = () => {
-    if(color=="white") return "grey"
+    if(color=="white") return "grey";
     else return "transparent";
-  }
+  };
 
   const getCustomBg = () => {
     if(isCustomSelected) return "grey";
-    else return "transparent"
-  }
+    else return "transparent";
+  };
 
   const getRandomBg = () => {
     if(isRandomSelected) return "grey";
-    else return "transparent"
-  }
+    else return "transparent";
+  };
 
   const handleSelectClick = (color: string) => {
     setColor(color);
     setIsCustomSelected(false);
-    setIsRadomSelected(false)
-  }
+    setIsRadomSelected(false);
+  };
 
   const handleCustomClick = () => {
     setSelectedColor(selectedColor);
     setIsColorPickerVisible(true);
     setIsCustomSelected(true);
     setIsRadomSelected(false);
-  }
+  };
 
   useEffect(() => {
     if(selectedColor.toLowerCase() !== "#ffffff") {
       setColor(selectedColor);
     }
-  }, [selectedColor])
+  }, [selectedColor]);
 
   return(
     <div>
@@ -145,7 +145,7 @@ const CanvasSettingsRooms: React.FC<CanvasSettingsProps> = ({
               selected={getSelected(color.cssColorValue)}
               setColor={() => handleSelectClick(color.cssColorValue)}
             />
-          )
+          );
         })}
         <div
           className="select-color"
@@ -159,7 +159,7 @@ const CanvasSettingsRooms: React.FC<CanvasSettingsProps> = ({
         </div>
         {isColorPickerVisible ? (
           <div style={{ position: "absolute", zIndex: 1 }}>
-            <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => setIsColorPickerVisible(false)}/>
+            <div style={{ position: "fixed", top: "0px", right: "0px", bottom: "0px", left: "0px" }} onClick={() => setIsColorPickerVisible(false)}/>
             <ChromePicker
               color={selectedColor}
               onChange={(color) => setSelectedColor(color.hex)}
@@ -203,13 +203,13 @@ const CanvasSettingsRooms: React.FC<CanvasSettingsProps> = ({
       </div>
 
       <button
-        onClick={() => clearCanvas()}
+        onClick={clearCanvas}
       >
         Clear All
       </button>
       {/**<button>Undo</button> naredi če bo čas */}
     </div>
-  )
-}
+  );
+};
 
 export default CanvasSettingsRooms;

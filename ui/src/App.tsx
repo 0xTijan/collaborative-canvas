@@ -1,15 +1,15 @@
-  import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
-import FetchComponent from './components/FetchComponent';
-import Canvas from './components/Canvas/Canvas';
-import SocketTest from './components/SocketTest';
-import Chat from './components/Chat/Chat';
-import CanvasRooms from './components/Rooms/CanvasRooms';
-import socket from './socket';
-import { User } from './helpers/types';
-import ChatRooms from './components/Rooms/ChatRooms';
-import ErrorModal from './components/Modals/ErrorModal';
+import React, { useEffect, useState } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import FetchComponent from "./components/FetchComponent";
+import Canvas from "./components/Canvas/Canvas";
+import SocketTest from "./components/SocketTest";
+import Chat from "./components/Chat/Chat";
+import CanvasRooms from "./components/Rooms/CanvasRooms";
+import socket from "./socket";
+import { User } from "./helpers/types";
+import ChatRooms from "./components/Rooms/ChatRooms";
+import ErrorModal from "./components/Modals/ErrorModal";
 
 function App() {
 
@@ -18,6 +18,7 @@ function App() {
   const closeErrorModal = () => setIsErrorModalVisible(false);
   const [errorText, setErrorText] = useState<string>("");
 
+  const [members, setMembers] = useState<number>(1);
   const [room, setRoom] = useState<string>("");
   const [roomInput, setRoomInput] = useState<string>("");
   const [nickname, setNickname] = useState<string>("");
@@ -28,26 +29,26 @@ function App() {
     if(nickname.length>0) {
       console.log(socket.connected);
       socket.disconnect();
-      let username = nickname;
+      const username = nickname;
       socket.auth = { username };
       socket.connect();
       console.log("logged in");
       console.log(socket.connected);
     }
-  }
+  };
 
   useEffect(() => {
     socket.on("users", (users) => {
       users.map((user: User) => {
-        let isLoggedIn = user.userID === socket.id;
+        const isLoggedIn = user.userID === socket.id;
         if(isLoggedIn){
           setIsLoggedIn(true);
           setUser(user);
         }
-      })
+      });
     });
     socket.on("disconnect", () => {
-      setUser(null)
+      setUser(null);
     });
     socket.on("joined-room", (room) => {
       setRoom(room);
@@ -58,14 +59,15 @@ function App() {
     });
     console.log("connected: ", socket.connected); 
     socket.on("test", (message) => {
-      console.log("new message received: ", message)
+      console.log("new message received: ", message);
     });
     socket.on("errors", (error) => {
       if(error.length>0) {
         setErrorText(error);
-        openErrorModal();
+        //openErrorModal();
+        window.alert(error);
       }
-      console.log(error)
+      console.log(error);
     });
   }, []);
 
@@ -73,14 +75,14 @@ function App() {
     if(roomInput.length>0) {
       socket.emit("join-room", roomInput);
     }
-  }
+  };
 
   const createRoom = () => {
     socket.emit("create-room", room);
-  }
+  };
 
   useEffect(() => {
-    console.log("connected: ", socket.connected)
+    console.log("connected: ", socket.connected);
   }, [socket.connected]);
 
   const leaveRoom = () => {
@@ -88,64 +90,64 @@ function App() {
       socket.emit("leave-room", room);
       setRoom("");
     }
-  }
+  };
 
 
   return (
     <>
-    <div className="App">
-      {/*<h1 className='title'>Real Time Canvas & Chat</h1>*/}
-      {!isLoggedIn ? (
-        <>
-          <label className='nickname-text'>Nickname:</label><br />
-          <input placeholder='John' value={nickname} onChange={(e: any) => setNickname(e.target.value)} />
-          <button onClick={login}>Go</button>
-        </>
-      ):(
-        <>
-          <p className='nickname-text'>{user?.username}</p>
-          {room.length==0 ? (
-            <>
-              <input placeholder='Room Code' value={roomInput} onChange={(e: any) => setRoomInput(e.target.value)} />
-              <button onClick={joinRoom}>Join Private Room</button>
-              <br />
-              <button onClick={createRoom}>Create Private Room</button>
-              <p className='nickname-text'>Public Canvas</p>
-              <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
-                <div>
-                  <Canvas />
+      <div className="App">
+        {/*<h1 className='title'>Real Time Canvas & Chat</h1>*/}
+        {!isLoggedIn ? (
+          <>
+            <label className='nickname-text'>Nickname:</label><br />
+            <input placeholder='John' value={nickname} onChange={(e: any) => setNickname(e.target.value)} />
+            <button onClick={login}>Go</button>
+          </>
+        ):(
+          <>
+            <p className='nickname-text'>{user?.username}</p>
+            {room.length==0 ? (
+              <>
+                <input placeholder='Room Code' value={roomInput} onChange={(e: any) => setRoomInput(e.target.value)} />
+                <button onClick={joinRoom}>Join Private Room</button>
+                <br />
+                <button onClick={createRoom}>Create Private Room</button>
+                <p className='nickname-text'>Public Canvas</p>
+                <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
+                  <div>
+                    <Canvas />
+                  </div>
+                  <div>
+                    <Chat nickname={nickname} />
+                  </div>
                 </div>
-                <div>
-                  <Chat nickname={nickname} />
+              </>
+            ):(
+              <>
+                <p className='nickname-text'>Private Canvas</p>
+                <p>Room Code: {room}</p>
+                <button onClick={leaveRoom}>leave</button>
+                <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
+                  <div>
+                    <CanvasRooms members={members} setMembers={setMembers} roomId={room} />
+                  </div>
+                  <div>
+                    <ChatRooms roomId={room} user={user ? user:{userID: "", username: ""}} />
+                  </div>
                 </div>
-              </div>
-            </>
-          ):(
-            <>
-              <p className='nickname-text'>Private Canvas</p>
-              <p>Room Code: {room}</p>
-              <button onClick={leaveRoom}>leave</button>
-              <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
-                <div>
-                  <CanvasRooms roomId={room} />
-                </div>
-                <div>
-                  <ChatRooms roomId={room} user={user ? user:{userID: "", username: ""}} />
-                </div>
-              </div>
-            </>
-          )}
-        </>
-      )}
+              </>
+            )}
+          </>
+        )}
 
-    </div>
+      </div>
 
-    <ErrorModal
-      text={errorText}
-      title="Error!"
-      isVisible={isErrorModalVisible}
-      close={closeErrorModal}
-    />
+      <ErrorModal
+        text={errorText}
+        title="Error!"
+        isVisible={isErrorModalVisible}
+        close={closeErrorModal}
+      />
     </>
   );
 }

@@ -1,6 +1,6 @@
-type IPosition = 'topR' | 'topL' | 'bottomR' | 'bottomL';
+type IPosition = "topR" | "topL" | "bottomR" | "bottomL";
 
-type notifyType = 'error' | 'info' | 'success' | 'warning';
+type notifyType = "error" | "info" | "success" | "warning";
 
 type NotficationType = {
   type: notifyType,
@@ -11,12 +11,12 @@ type NotficationType = {
 }
 
 export const getNotification = (type: notifyType, title: string, message: string) => {
-  let toReturn: NotficationType = {
+  const toReturn: NotficationType = {
     type: type,
     title: title,
     message: message,
     icon: undefined,
     position: "topR"
-  }
+  };
   return toReturn;
-}
+};

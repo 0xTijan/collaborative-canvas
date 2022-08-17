@@ -19,28 +19,29 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
   const sendMessage = () => {
     if(toSend.length!==0) {
       const d = new Date();
-      let date = `${d.getHours()}:${d.getMinutes()}`
-      let _message: MessageRoom = {
+      const minutes = d.getMinutes()<10 ? `0${d.getMinutes()}`:d.getMinutes();
+      const date = `${d.getHours()}:${minutes}`;
+      const _message: MessageRoom = {
         roomId: roomId,
         message: {
           sender: user.username,
           message: toSend,
           date: date
         },
-      }
+      };
       socket.emit("messages-room", _message);
-      console.log("sent: ", _message)
+      console.log("sent: ", _message);
     }
-  }
+  };
 
   useEffect(() => {
     socket.on("messages-room", (data) => {
-      console.log(data!=messages[messages.length-1])
-      console.log("data: ", data)
-      console.log("messages ", messages)
+      console.log(data!=messages[messages.length-1]);
+      console.log("data: ", data);
+      console.log("messages ", messages);
       if(data!=messages[messages.length-1]) {
         setMessages(prev => [...prev, data]);
-        console.log("added")
+        console.log("added");
         setToSend("");
       }
     });
@@ -58,11 +59,11 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
                 message={message.message}
                 nickname={user.username}
               />
-            )
+            );
           }
         })}
         
-{/*        <div ref={bottomRef} />
+        {/*        <div ref={bottomRef} />
 */}
         <div className="chat-input-box">
           <input placeholder="Type something . . ." value={toSend} onChange={(e: any) => setToSend(e.target.value)} />
@@ -70,7 +71,7 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default ChatRooms;

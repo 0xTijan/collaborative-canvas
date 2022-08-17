@@ -7,16 +7,16 @@ interface MessageProps {
 }
 
 const MessageComponent: React.FC<MessageProps> = ({ message, nickname }) => {
-  let isSender = message.sender==nickname;
-  console.log(message)
+  const isSender = message.sender==nickname;
+  console.log(message);
 
   const getClassName = () => {
-    let isSender = message.sender === nickname;
-    let isSystem = message.sender === "";
+    const isSender = message.sender === nickname;
+    const isSystem = message.sender === "";
     if(isSystem) return "message-system-div-text";
     else if(isSender) return "message-sender-div-text";
     else return "message-div-text";
-  }
+  };
 
   return(
     <div className={`${getClassName()} message-div`}>
@@ -24,7 +24,7 @@ const MessageComponent: React.FC<MessageProps> = ({ message, nickname }) => {
       <br />
       <span><i>{message.message}</i></span>
     </div>
-  )
-}
+  );
+};
 
 export default MessageComponent;

@@ -12,11 +12,17 @@ type Coordinate = {
 }
 
 interface CanvasRoomProps {
-  roomId: string
+  roomId: string,
+  setMembers: (members: number) => void,
+  members: number
 }
   
 
-const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
+const CanvasRooms: React.FC<CanvasRoomProps> = ({
+  roomId,
+  setMembers,
+  members
+}) => {
 
   const [color, setColor] = useState<string>("red");
   const [lineWidth, setLineWidth] = useState<number>(5);
@@ -47,7 +53,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
           name: "CanvasNFT",
           description: "Canvas NFTs are NFT created from collab-convas app.",
           image: _image.hash()
-        }        
+        };        
         const URI = new Moralis.File("file.json", {
           base64: btoa(JSON.stringify(object)),
         });
@@ -60,36 +66,36 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
           params: {
             uri: `https://gateway.moralisipfs.com/ipfs/${URI.hash()}`
           }
-        }
+        };
 
-        let tx: any = await Contract.runContractFunction({ params: _params});
+        const tx: any = await Contract.runContractFunction({ params: _params});
         if(tx) {
-          let receipt = await tx.wait();
-          let id = receipt.logs[0].topics[3];
-          alert(`Your Canvas NFT was minted!!\nView it here:\nhttps://testnets.opensea.io/assets/mumbai/0x354e4a68435890edfbec9811cca3dde9dbca222d/${Number(id)}`)
+          const receipt = await tx.wait();
+          const id = receipt.logs[0].topics[3];
+          alert(`Your Canvas NFT was minted!!\nView it here:\nhttps://testnets.opensea.io/assets/mumbai/0x354e4a68435890edfbec9811cca3dde9dbca222d/${Number(id)}`);
         }
       }
     }catch(err: any){
-      console.log(err)
-      notify(getNotification("error", "Something went wrong while minting!", err.message))
+      console.log(err);
+      notify(getNotification("error", "Something went wrong while minting!", err.message));
     }
-  }
+  };
 
   const sendCanvasImage = () => {
-    let url = getImageUrl();
+    const url = getImageUrl();
     if(url) {
-      let obj = {
+      const obj = {
         image: url,
         roomId: roomId
-      }
-      socket.emit('canvas-rooms', obj);
+      };
+      socket.emit("canvas-rooms", obj);
     }
-  }
+  };
 
   const downloadImage = () => {
     if(canvasRef.current) {
       if(window.confirm("Do you want to download this canvas?")) {
-        let url = getImageUrl();
+        const url = getImageUrl();
         if(url) {
           fetch(url)
             .then((response) => response.blob())
@@ -98,10 +104,10 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
               const url = window.URL.createObjectURL(
                 new Blob([blob]),
               );
-              const link = document.createElement('a');
+              const link = document.createElement("a");
               link.href = url;
               link.setAttribute(
-                'download', "canvas.png"
+                "download", "canvas.png"
               );
 
               // Append to html link element page
@@ -118,7 +124,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
         }
       }
     }
-  }
+  };
 
   const getImageUrl = () => {
     if (!canvasRef.current) {
@@ -127,7 +133,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
     const canvas: HTMLCanvasElement = canvasRef.current;
     const image = canvas.toDataURL("image/png");
     return image;
-  }
+  };
 
   const getCoordinates = (event: MouseEvent): Coordinate | undefined => {
     if (!canvasRef.current) {
@@ -138,7 +144,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
     return {
       x: event.pageX - canvas.offsetLeft,
       y: event.pageY - canvas.offsetTop
-    }
+    };
   };
 
   const startPaint = useCallback((event: MouseEvent) => {
@@ -155,7 +161,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
       return;
     }
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     if (context) {
       context.strokeStyle = color;
       context.lineJoin = "round";
@@ -168,7 +174,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
 
       context.stroke();
     }
-  }
+  };
 
   const paint = useCallback((event: MouseEvent) => {
     if (isPainting) {
@@ -178,11 +184,12 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
         setMousePosition(newMousePosition);
       }
     }
-  }, [isPainting, mousePosition])
+  }, [isPainting, mousePosition]);
 
   const exitPaint = useCallback(() => {
     setIsPainting(false);
     sendCanvasImage();
+    socket.emit("get-num-of-members", roomId);
   }, []);
 
   const clearCanvas = () => {
@@ -190,10 +197,10 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
       return;
     }
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     context?.clearRect(0, 0, canvas.width, canvas.height);
     sendCanvasImage();
-  }
+  };
 
   useEffect(() => {
     if (!canvasRef.current) {
@@ -205,7 +212,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
 
     return () => {
       canvas.removeEventListener("mousedown", startPaint);
-    }    
+    };    
   }, [startPaint]);
 
   useEffect(() => {
@@ -213,9 +220,9 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
       return;
     }
     const canvas: HTMLCanvasElement = canvasRef.current;
-    canvas.addEventListener('mousemove', paint);
+    canvas.addEventListener("mousemove", paint);
     return () => {
-      canvas.removeEventListener('mousemove', paint);
+      canvas.removeEventListener("mousemove", paint);
     };
   }, [paint]);
 
@@ -224,11 +231,11 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
       return;
     }
     const canvas: HTMLCanvasElement = canvasRef.current;
-    canvas.addEventListener('mouseup', exitPaint);
-    canvas.addEventListener('mouseleave', exitPaint);
+    canvas.addEventListener("mouseup", exitPaint);
+    canvas.addEventListener("mouseleave", exitPaint);
     return () => {
-      canvas.removeEventListener('mouseup', exitPaint);
-      canvas.removeEventListener('mouseleave', exitPaint);
+      canvas.removeEventListener("mouseup", exitPaint);
+      canvas.removeEventListener("mouseleave", exitPaint);
     };
   }, [exitPaint]);
 
@@ -238,7 +245,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
         return;
       }
 
-      const response = await fetch('/last-canvas');
+      const response = await fetch("/last-canvas");
       const lastImage = await response.json();
 
       const canvas: HTMLCanvasElement = canvasRef.current;
@@ -249,30 +256,38 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
       }
       if(lastImage) {
         if(lastImage.data) {
-          let image = new Image();
+          const image = new Image();
           image.onload = function() {
             if(context) {
-              context.drawImage(image, 0, 0);
+              context.drawImage(image, 0, 0, canvas.width, canvas.height); // destination rectangle
+              // context.drawImage(image, 0, 0);
             }
-          }
+          };
           image.src = lastImage.data;
         }
       }
 
       socket.on("canvas-rooms", (data) => {
-        console.log("received data: ", data)
+        console.log("received data: ", data);
         if(canvasRef.current) {
           const canvas: HTMLCanvasElement = canvasRef.current;
-          const context = canvas.getContext('2d');
-          let image = new Image();
+          const context = canvas.getContext("2d");
+          const image = new Image();
           image.onload = function() {
             if(context) {
-              context.drawImage(image, 0, 0);
+              context.drawImage(image, 0, 0, canvas.width, canvas.height);
             }
-          }
+          };
           image.src = data.image;
         }
-      })
+      });
+
+      socket.on("members", (members) => {
+        if(members>0) {
+          console.log(members);
+          setMembers(members);
+        }
+      });
     })();
   }, []);
 
@@ -293,11 +308,11 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({ roomId }) => {
       <>
         <button onClick={downloadImage}>Download Canvas</button>
         <button onClick={mintNFT}>Mint As NFT</button>
-        <button onClick={() => {}}>Send it to my Email</button>
-        <button onClick={() => {}}>Tweet It</button>
+        <button>Send it to my Email</button>
+        <button>Tweet It</button>
       </>
     </>
-  )
-}
+  );
+};
 
 export default CanvasRooms;

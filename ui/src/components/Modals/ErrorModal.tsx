@@ -1,7 +1,7 @@
 /* This example requires Tailwind CSS v2.0+ */
-import React, { Fragment, useRef, useState } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
-import { ExclamationIcon } from '@heroicons/react/outline'
+import React, { Fragment, useRef, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { ExclamationIcon } from "@heroicons/react/outline";
 
 interface ErrorModalProps {
   text: string,
@@ -20,7 +20,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({
   secondButton
 }) => {
 
-  const cancelButtonRef = useRef(null)
+  const cancelButtonRef = useRef(null);
 
   return (
     <Transition.Root show={isVisible} as={Fragment}>
@@ -82,7 +82,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({
         </div>
       </Dialog>
     </Transition.Root>
-  )
-}
+  );
+};
 
 export default ErrorModal;

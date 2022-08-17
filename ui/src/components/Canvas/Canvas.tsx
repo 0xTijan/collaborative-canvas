@@ -43,7 +43,7 @@ const Canvas = () => {
           name: "CanvasNFT",
           description: "Canvas NFTs are NFT created from collab-convas app.",
           image: _image.hash()
-        }        
+        };        
         const URI = new Moralis.File("file.json", {
           base64: btoa(JSON.stringify(object)),
         });
@@ -56,32 +56,32 @@ const Canvas = () => {
           params: {
             uri: `https://gateway.moralisipfs.com/ipfs/${URI.hash()}`
           }
-        }
+        };
 
-        let tx: any = await Contract.runContractFunction({ params: _params});
+        const tx: any = await Contract.runContractFunction({ params: _params});
         if(tx) {
-          let receipt = await tx.wait();
-          let id = receipt.logs[0].topics[3];
-          alert(`Your Canvas NFT was minted!!\nView it here:\nhttps://testnets.opensea.io/assets/mumbai/0x354e4a68435890edfbec9811cca3dde9dbca222d/${Number(id)}`)
+          const receipt = await tx.wait();
+          const id = receipt.logs[0].topics[3];
+          alert(`Your Canvas NFT was minted!!\nView it here:\nhttps://testnets.opensea.io/assets/mumbai/0x354e4a68435890edfbec9811cca3dde9dbca222d/${Number(id)}`);
         }
       }
     }catch(err: any){
-      console.log(err)
-      notify(getNotification("error", "Something went wrong while minting!", err.message))
+      console.log(err);
+      notify(getNotification("error", "Something went wrong while minting!", err.message));
     }
-  }
+  };
 
   const sendCanvasImage = () => {
-    let url = getImageUrl();
+    const url = getImageUrl();
     if(url) {
-      socket.emit('canvas-data-public', url);
+      socket.emit("canvas-data-public", url);
     }
-  }
+  };
 
   const downloadImage = () => {
     if(canvasRef.current) {
       if(window.confirm("Do you want to download this canvas?")) {
-        let url = getImageUrl();
+        const url = getImageUrl();
         if(url) {
           fetch(url)
             .then((response) => response.blob())
@@ -90,10 +90,10 @@ const Canvas = () => {
               const url = window.URL.createObjectURL(
                 new Blob([blob]),
               );
-              const link = document.createElement('a');
+              const link = document.createElement("a");
               link.href = url;
               link.setAttribute(
-                'download', "canvas.png"
+                "download", "canvas.png"
               );
 
               // Append to html link element page
@@ -110,7 +110,7 @@ const Canvas = () => {
         }
       }
     }
-  }
+  };
 
   const getImageUrl = () => {
     if (!canvasRef.current) {
@@ -119,7 +119,7 @@ const Canvas = () => {
     const canvas: HTMLCanvasElement = canvasRef.current;
     const image = canvas.toDataURL("image/png");
     return image;
-  }
+  };
 
   const getCoordinates = (event: MouseEvent): Coordinate | undefined => {
     if (!canvasRef.current) {
@@ -130,7 +130,7 @@ const Canvas = () => {
     return {
       x: event.pageX - canvas.offsetLeft,
       y: event.pageY - canvas.offsetTop
-    }
+    };
   };
 
   const startPaint = useCallback((event: MouseEvent) => {
@@ -147,7 +147,7 @@ const Canvas = () => {
       return;
     }
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     if (context) {
       context.strokeStyle = color;
       context.lineJoin = "round";
@@ -160,7 +160,7 @@ const Canvas = () => {
 
       context.stroke();
     }
-  }
+  };
 
   const paint = useCallback((event: MouseEvent) => {
     if (isPainting) {
@@ -170,7 +170,7 @@ const Canvas = () => {
         setMousePosition(newMousePosition);
       }
     }
-  }, [isPainting, mousePosition])
+  }, [isPainting, mousePosition]);
 
   const exitPaint = useCallback(() => {
     setIsPainting(false);
@@ -182,10 +182,10 @@ const Canvas = () => {
       return;
     }
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     context?.clearRect(0, 0, canvas.width, canvas.height);
     sendCanvasImage();
-  }
+  };
 
   useEffect(() => {
     if (!canvasRef.current) {
@@ -197,7 +197,7 @@ const Canvas = () => {
 
     return () => {
       canvas.removeEventListener("mousedown", startPaint);
-    }    
+    };    
   }, [startPaint]);
 
   useEffect(() => {
@@ -205,9 +205,9 @@ const Canvas = () => {
       return;
     }
     const canvas: HTMLCanvasElement = canvasRef.current;
-    canvas.addEventListener('mousemove', paint);
+    canvas.addEventListener("mousemove", paint);
     return () => {
-      canvas.removeEventListener('mousemove', paint);
+      canvas.removeEventListener("mousemove", paint);
     };
   }, [paint]);
 
@@ -216,11 +216,11 @@ const Canvas = () => {
       return;
     }
     const canvas: HTMLCanvasElement = canvasRef.current;
-    canvas.addEventListener('mouseup', exitPaint);
-    canvas.addEventListener('mouseleave', exitPaint);
+    canvas.addEventListener("mouseup", exitPaint);
+    canvas.addEventListener("mouseleave", exitPaint);
     return () => {
-      canvas.removeEventListener('mouseup', exitPaint);
-      canvas.removeEventListener('mouseleave', exitPaint);
+      canvas.removeEventListener("mouseup", exitPaint);
+      canvas.removeEventListener("mouseleave", exitPaint);
     };
   }, [exitPaint]);
 
@@ -230,7 +230,7 @@ const Canvas = () => {
         return;
       }
 
-      const response = await fetch('/last-canvas');
+      const response = await fetch("/last-canvas");
       const lastImage = await response.json();
 
       const canvas: HTMLCanvasElement = canvasRef.current;
@@ -241,12 +241,12 @@ const Canvas = () => {
       }
       if(lastImage) {
         if(lastImage.data) {
-          let image = new Image();
+          const image = new Image();
           image.onload = function() {
             if(context) {
-              context.drawImage(image, 0, 0);
+              context.drawImage(image, 0, 0, canvas.width, canvas.height);
             }
-          }
+          };
           image.src = lastImage.data;
         }
       }
@@ -254,16 +254,16 @@ const Canvas = () => {
       socket.on("canvas-data-public", (data) => {
         if(canvasRef.current) {
           const canvas: HTMLCanvasElement = canvasRef.current;
-          const context = canvas.getContext('2d');
-          let image = new Image();
+          const context = canvas.getContext("2d");
+          const image = new Image();
           image.onload = function() {
             if(context) {
-              context.drawImage(image, 0, 0);
+              context.drawImage(image, 0, 0, canvas.width, canvas.height);
             }
-          }
+          };
           image.src = data;
         }
-      })
+      });
     })();
   }, []);
 
@@ -284,11 +284,11 @@ const Canvas = () => {
       <>
         <button onClick={downloadImage}>Download Canvas</button>
         <button onClick={mintNFT}>Mint As NFT</button>
-        <button onClick={() => {}}>Send it to my Email</button>
-        <button onClick={() => {}}>Tweet It</button>
+        <button>Send it to my Email</button>
+        <button>Tweet It</button>
       </>
     </>
-  )
-}
+  );
+};
 
 export default Canvas;
