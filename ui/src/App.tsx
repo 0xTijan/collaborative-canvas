@@ -26,7 +26,7 @@ function App() {
   const [user, setUser] = useState<User|null>(null);
 
   const login = () => {
-    if(nickname.length>0) {
+    if(nickname.length>1) {
       console.log(socket.connected);
       socket.disconnect();
       const username = nickname;
@@ -34,6 +34,8 @@ function App() {
       socket.connect();
       console.log("logged in");
       console.log(socket.connected);
+    }else{
+      window.alert("Nickname must be longer than 1!");
     }
   };
 
@@ -99,20 +101,30 @@ function App() {
         {/*<h1 className='title'>Real Time Canvas & Chat</h1>*/}
         {!isLoggedIn ? (
           <>
-            <label className='nickname-text'>Nickname:</label><br />
-            <input placeholder='John' value={nickname} onChange={(e: any) => setNickname(e.target.value)} />
-            <button onClick={login}>Go</button>
+            <label className='nickname'>Nickname:</label><br />
+            <input placeholder='John' value={nickname} style={{ marginBottom: "2vh", marginTop: "1vh" }} className="input" onChange={e => setNickname(e.target.value)} />
+            <br />
+            <button onClick={login} className="button-19">Go!</button>
           </>
         ):(
           <>
-            <p className='nickname-text'>{user?.username}</p>
+            <p className='nickname-text-big'><span style={{ fontWeight: "300" }}>Nickname: </span>{user?.username}</p>
             {room.length==0 ? (
               <>
-                <input placeholder='Room Code' value={roomInput} onChange={(e: any) => setRoomInput(e.target.value)} />
-                <button onClick={joinRoom}>Join Private Room</button>
-                <br />
-                <button onClick={createRoom}>Create Private Room</button>
-                <p className='nickname-text'>Public Canvas</p>
+                <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", justifySelf: "center", marginTop: "1vh" }}>
+                  <div>
+                    <p className='nickname-text' style={{ fontWeight: "300", textAlign: "center", marginTop: "0" }}>Join a Private Room:</p>
+                    <input placeholder='Private Room Code' className="input" value={roomInput} onChange={e => setRoomInput(e.target.value)} />
+                    <br />
+                    <button onClick={joinRoom} className="button-19" style={{ marginBottom: "3vh", marginTop: "1vh" }}>Join</button>
+                  </div>
+                  <p className="nickname" style={{ marginTop: "6vh", marginLeft: "3vw", marginRight: "3vw" }}>OR</p>
+                  <div>
+                    <p className='nickname-text' style={{ fontWeight: "300", textAlign: "center", marginTop: "0" }}>Create a Private Room:</p> 
+                    <button style={{ marginTop: "1vh" }} onClick={createRoom} className="button-19">Create Private Room</button>
+                  </div>
+                </div>
+                <p className='nickname-text' style={{ fontWeight: "300" }}>Draw & Chat on Public Canvas</p>
                 <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
                   <div>
                     <Canvas />
@@ -124,12 +136,15 @@ function App() {
               </>
             ):(
               <>
-                <p className='nickname-text'>Private Canvas</p>
-                <p>Room Code: {room}</p>
-                <button onClick={leaveRoom}>leave</button>
+                <p className='nickname-text' style={{ fontWeight: "800" }}>Private Room Canvas & Chat</p>
+                <p className="nickname-text" style={{ fontWeight: "300" }}>Room Code: <b>{room}</b></p>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <p  className='nickname-text' style={{ fontWeight: "300" }}>Members: {members}</p>
+                  <button onClick={leaveRoom} className="button-19" style={{ marginTop: "1.5vh", marginLeft: "1vw" }}>leave</button>
+                </div>
                 <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
                   <div>
-                    <CanvasRooms members={members} setMembers={setMembers} roomId={room} />
+                    <CanvasRooms setMembers={setMembers} roomId={room} />
                   </div>
                   <div>
                     <ChatRooms roomId={room} user={user ? user:{userID: "", username: ""}} />

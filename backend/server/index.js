@@ -5,6 +5,16 @@ const server = http.createServer(app);
 const io = require('socket.io')(server, {cors: {origin: "*"}});
 const PORT = process.env.PORT || 3001;
 
+/**
+ * ! public html
+ * ! readme
+ * ! change public to public room 
+ * ! css
+ * ! github
+ * ! list of public rooms
+ */
+
+
 let lastImage;
 let lastPublicMessages = [];
 let messages = new Map();

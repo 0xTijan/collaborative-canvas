@@ -83,8 +83,8 @@ const Chat: React.FC<ChatProps> = ({ nickname }) => {
         {/*        <div ref={bottomRef} />
 */}
         <div className="chat-input-box">
-          <input placeholder="Type something . . ." value={toSend} onChange={(e: any) => setToSend(e.target.value)} />
-          <button onClick={sendMessage}>Send</button>
+          <input className="input" placeholder="Type something . . ." value={toSend} onChange={e => setToSend(e.target.value)} />
+          <button className="button-19" onClick={sendMessage}>Send</button>
         </div>
       </div>
     </div>

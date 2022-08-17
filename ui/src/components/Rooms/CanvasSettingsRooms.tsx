@@ -202,12 +202,12 @@ const CanvasSettingsRooms: React.FC<CanvasSettingsProps> = ({
         />
       </div>
 
-      <button
+      {/**<button
         onClick={clearCanvas}
       >
         Clear All
       </button>
-      {/**<button>Undo</button> naredi če bo čas */}
+      <button>Undo</button> naredi če bo čas */}
     </div>
   );
 };

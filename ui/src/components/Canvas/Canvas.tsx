@@ -281,12 +281,12 @@ const Canvas = () => {
         setLineWidth={setLineWidth}
       />
       
-      <>
-        <button onClick={downloadImage}>Download Canvas</button>
-        <button onClick={mintNFT}>Mint As NFT</button>
-        <button>Send it to my Email</button>
-        <button>Tweet It</button>
-      </>
+      <div style={{ marginTop: "6vh", marginBottom: "8vh" }}>
+        <button style={{ marginRight: "1vw" }} className="button-19" onClick={downloadImage}>Download Canvas</button>
+        <button style={{ marginRight: "1vw" }} className="button-19" onClick={mintNFT}>Mint As NFT</button>
+        <button style={{ marginRight: "1vw" }} className="button-19">Send it to my Email</button>
+        <button style={{ marginRight: "1vw" }} className="button-19">Tweet It</button>
+      </div>
     </>
   );
 };

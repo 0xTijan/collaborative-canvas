@@ -50,6 +50,7 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
   return(
     <div className="chat-div" style={{ height: window.innerHeight*0.85 }}>
       <div style={{ paddingTop: "1rem", paddingBottom: "1rem", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}>
+        <p>Private Chat:</p>
         {messages.map((message: MessageRoom, index: number) => {
           {/**fix later */}
           if(message!==messages[index-1]) {
@@ -66,8 +67,8 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
         {/*        <div ref={bottomRef} />
 */}
         <div className="chat-input-box">
-          <input placeholder="Type something . . ." value={toSend} onChange={(e: any) => setToSend(e.target.value)} />
-          <button onClick={sendMessage}>Send</button>
+          <input className="input" placeholder="Type something . . ." value={toSend} onChange={e => setToSend(e.target.value)} />
+          <button className="button-19" onClick={sendMessage}>Send</button>
         </div>
       </div>
     </div>
