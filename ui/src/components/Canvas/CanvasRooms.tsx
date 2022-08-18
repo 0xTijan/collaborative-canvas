@@ -293,7 +293,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({
   return(
     <>
       <div className="canvas-outer-box">
-        <canvas className="canvas" height={window.innerHeight*0.85} width={window.innerWidth*0.8} ref={canvasRef} />
+        <canvas className="canvas" height={window.innerHeight*0.75} width={window.innerWidth*0.65} ref={canvasRef} />
       </div>
       
       <CanvasSettingsRooms

@@ -100,8 +100,6 @@
   background-color: whitesmoke;
   border-top-right-radius: 1.5rem;
   border-bottom-right-radius: 1.5rem;
-  overflow-x: hidden;
-  overflow-y: scroll;
 }
 
 .chat-input-box {

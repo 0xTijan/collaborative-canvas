@@ -8,8 +8,7 @@ interface MessageProps {
 
 const MessageComponent: React.FC<MessageProps> = ({ message, nickname }) => {
   const isSender = message.sender==nickname;
-  console.log(message);
-
+  
   const getClassName = () => {
     const isSender = message.sender === nickname;
     const isSystem = message.sender === "";
@@ -18,11 +17,22 @@ const MessageComponent: React.FC<MessageProps> = ({ message, nickname }) => {
     else return "message-div-text";
   };
 
+  const getMessage = () => {
+    const str = message.message;
+    const first = str.split(" ")[0];
+
+    if(first.toLowerCase()===nickname.toLowerCase() && message.sender==="") {
+      return str.replace(`${first} has`, "You have");
+    }
+    
+    return str;
+  };
+
   return(
     <div className={`${getClassName()} message-div`}>
       <span><b>{message.sender} {isSender ? "(you)":""}{"   "}{message.date}</b></span>
       <br />
-      <span><i>{message.message}</i></span>
+      <span><i>{getMessage()}</i></span>
     </div>
   );
 };

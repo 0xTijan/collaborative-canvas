@@ -5,8 +5,6 @@ const server = http.createServer(app);
 const io = require('socket.io')(server, {cors: {origin: "*"}});
 const PORT = process.env.PORT || 3001;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
 let lastImage;
 let lastPublicMessages = [];
@@ -53,7 +51,7 @@ io.use((socket, next) => {
       userID: id,
       username: _socket.username,
     });
-    if(_socket.username == username) {
+    if(_socket.username.toLowerCase() == username.toLowerCase()) {
       alreadyTaken = true;
     }
   }
@@ -145,6 +143,11 @@ io.on('connection', (socket)=> {
     socket.join(roomName);
     console.log("joined", socket.rooms);
     socket.emit("joined-room", roomName);
+    const data = {
+      image: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gIoSUNDX1BST0ZJTEUAAQEAAAIYAAAAAAQwAABtbnRyUkdCIFhZWiAAAAAAAAAAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAAHRyWFlaAAABZAAAABRnWFlaAAABeAAAABRiWFlaAAABjAAAABRyVFJDAAABoAAAAChnVFJDAAABoAAAAChiVFJDAAABoAAAACh3dHB0AAAByAAAABRjcHJ0AAAB3AAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAFgAAAAcAHMAUgBHAEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFhZWiAAAAAAAABvogAAOPUAAAOQWFlaIAAAAAAAAGKZAAC3hQAAGNpYWVogAAAAAAAAJKAAAA+EAAC2z3BhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABYWVogAAAAAAAA9tYAAQAAAADTLW1sdWMAAAAAAAAAAQAAAAxlblVTAAAAIAAAABwARwBvAG8AZwBsAGUAIABJAG4AYwAuACAAMgAwADEANv/bAEMAAwICAgICAwICAgMDAwMEBgQEBAQECAYGBQYJCAoKCQgJCQoMDwwKCw4LCQkNEQ0ODxAQERAKDBITEhATDxAQEP/bAEMBAwMDBAMECAQECBALCQsQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEP/AABEIAAoACgMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AqmAD/9k=",
+      roomId: room,
+    }
+    socket.emit("canvas-rooms", data);
   });
 
   // JOIN ROOM
@@ -172,9 +175,13 @@ io.on('connection', (socket)=> {
 
   // GET ROOM MEMBERS
   socket.on("get-num-of-members", (room) => {
-    let members =  io.sockets.adapter.rooms.get(room).size;
-    io.to(room).emit("members", members);
-  })
+    if(io.sockets.adapter.rooms.get(room)) {
+      let members =  io.sockets.adapter.rooms.get(room).size;
+      io.to(room).emit("members", members);
+    }else{
+      io.to(room).emit("members", "-");
+    }
+  });
 
   // LEAVE ROOM
   socket.on("leave-room", (room) => {
@@ -200,7 +207,6 @@ io.on('connection', (socket)=> {
     if(roomId=="public") {
       lastImage = image;
     }
-    console.log("Received Image Data for public board.")
     io.in(roomId).emit('canvas-rooms', data);   // broadcast -> everyone except sender, emit -> everyone
   });
 

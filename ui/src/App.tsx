@@ -7,7 +7,7 @@ import CanvasRooms from "./components/Canvas/CanvasRooms";
 
 function App() {
 
-  const [members, setMembers] = useState<number>(1);
+  const [members, setMembers] = useState<number|string>(1);
   const [room, setRoom] = useState<string>("");
   const [roomInput, setRoomInput] = useState<string>("");
   const [nickname, setNickname] = useState<string>("");
@@ -91,6 +91,15 @@ function App() {
     socket.emit("join-room", "public");
   };
 
+  const sendEmail = () => {
+    fetch("/send-email", {
+      method: "POST",
+      body: JSON.stringify({
+        to: "test"
+      })
+    }).then(res => res.json()).then(data => console.log(data));
+  };
+
   return (
     <>
       <div className="App">
@@ -133,19 +142,32 @@ function App() {
                   <p  className='nickname-text' style={{ fontWeight: "300" }}>Members: {members}</p>
                 </div>
                 <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
-                  <div>
-                    <CanvasRooms setMembers={setMembers} roomId={room} />
-                  </div>
-                  <div>
-                    <ChatRooms roomId={room} user={user ? user:{userID: "", username: ""}} />
-                  </div>
+                  {room.length>19 ? (
+                    <>
+                      <div>
+                        <CanvasRooms setMembers={setMembers} roomId={room} />
+                      </div>
+                      <div>
+                        <ChatRooms roomId={room} user={user ? user:{userID: "", username: ""}} />
+                      </div>
+                    </>
+                  ):(
+                    <>
+                      <div>
+                        <CanvasRooms setMembers={setMembers} roomId={"public"} />
+                      </div>
+                      <div>
+                        <ChatRooms roomId={"public"} user={user ? user:{userID: "", username: ""}} />
+                      </div>
+                    </>
+                  )}
                 </div>
               </>
             )}
           </>
         )}
-
       </div>
+      <button onClick={sendEmail}>Send</button>
     </>
   );
 }

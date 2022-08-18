@@ -10,7 +10,7 @@ interface ChatRoomsProps {
 
 const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
 
-  const [messages, setMessages] = useState<MessageRoom[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [toSend, setToSend] = useState<string>("");
   const [fetchAmount, setFetchAmount] = useState<number>(10);
 
@@ -41,32 +41,59 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
       console.log("data: ", data);
       console.log("messages ", messages);
       if(data!=messages[messages.length-1]) {
-        setMessages(prev => [...prev, data]);
+        setMessages(prev => [...prev, data.message]);
         console.log("added");
         setToSend("");
       }
     });
   }, []);
 
+  useEffect(() => {
+    (async function get() {
+      if(roomId == "public") {
+        const url = `/last-messages${fetchAmount==0 ? "":`?=${fetchAmount}`}`;
+        const response = await fetch(url);
+        const lastMessages = await response.json();
+        setMessages(lastMessages.messages);
+      }
+    })();
+  }, [fetchAmount]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({behavior: "smooth"});
+  }, [messages]);
+
   return(
-    <div className="chat-div" style={{ height: window.innerHeight*0.85 }}>
+    <div className="chat-div" style={{ height: window.innerHeight*0.75 }}>
       <div style={{ paddingTop: "1rem", paddingBottom: "1rem", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}>
         <p>{roomId.length>14? "Private":"Public"} Chat:</p>
-        {messages.map((message: MessageRoom, index: number) => {
-          {/**fix later */}
-          if(message!==messages[index-1]) {
-            return(
-              <MessageComponent
-                key={index}
-                message={message.message}
-                nickname={user.username}
-              />
-            );
-          }
-        })}
+        {roomId.length<19 ? (
+          <p>Load last
+            <select name="amounts" id="amount" value={fetchAmount} onChange={e => setFetchAmount(Number(e.target.value))}>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={0}>all</option>
+            </select>
+          messages</p>
+        ):null}
+        <div style={{ maxHeight: "32rem", overflow: "scroll", overflowX: "hidden" }}>
+          {messages.map((message: Message, index: number) => {
+            {/**fix later */}
+            if(message!==messages[index-1]) {
+              return(
+                <MessageComponent
+                  key={index}
+                  message={message}
+                  nickname={user.username}
+                />
+              );
+            }
+          })}
+        </div>
+        <div ref={bottomRef} />
         
-        {/*        <div ref={bottomRef} />
-*/}
         <div className="chat-input-box">
           <input className="input" placeholder="Type something . . ." value={toSend} onChange={e => setToSend(e.target.value)} />
           <button className="button-19" onClick={sendMessage}>Send</button>
