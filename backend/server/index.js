@@ -5,15 +5,8 @@ const server = http.createServer(app);
 const io = require('socket.io')(server, {cors: {origin: "*"}});
 const PORT = process.env.PORT || 3001;
 
-/**
- * ! public html
- * ! readme
- * ! change public to public room 
- * ! css
- * ! github
- * ! list of public rooms
- */
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 let lastImage;
 let lastPublicMessages = [];
@@ -23,8 +16,10 @@ app.get('/last-canvas', (req, res) => {
   res.json({ data: lastImage });
 });
 
-//! get members
-app.get("/members")
+app.post("/send-email", (req, res) => {
+  const to = req.body.to;
+  console.log("Send to: ", to);
+});
 
 app.get('/last-messages', (req, res) => {
   let amount = req.query.amount;
@@ -40,7 +35,7 @@ const getRandomName = () => {
   let text = "";
   let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-  for (let i = 0; i < 15; i++)
+  for (let i = 0; i < 20; i++)
     text += possible.charAt(Math.floor(Math.random() * possible.length));
 
   return text;
@@ -84,6 +79,9 @@ io.of("/").adapter.on("join-room", (room, id) => {
   }
   let _messages = messages.get(room);
   messages.set(room, [..._messages, newMessage]);
+  if(room=="public") {
+    lastPublicMessages.push(newMessage);
+  }
   io.to(room).emit("messages-room", {
     roomId: room,
     message: newMessage
@@ -98,14 +96,18 @@ io.of("/").adapter.on("leave-room", (room, id) => {
   let minutes = d.getMinutes()<10 ? `0${d.getMinutes()}`:d.getMinutes();
   let date = `${d.getHours()}:${minutes}`
   let socket = io.sockets.sockets.get(id);
+  let newMessage = {
+    sender: "",
+    date: date,
+    message: `${socket.username} has left.`
+  };
   io.to(room).emit("messages-room", {
     roomId: room,
-    message: {
-      sender: "",
-      date: date,
-      message: `${socket.username} has left.`
-    }
-  })
+    message: newMessage
+  });
+  if(room=="public") {
+    lastPublicMessages.push(newMessage);
+  }
   let members =  io.sockets.adapter.rooms.get(room).size;
   io.to(room).emit("members", members)
   console.log(`socket ${id} has left room ${room}`);
@@ -132,16 +134,25 @@ io.on('connection', (socket)=> {
 
   // JOIN ROOM
   socket.on("join-room", (room) => {
-    if (io.sockets.adapter.rooms.has(room)) {
+    if(room=="public") {
       socket.join(room);
       console.log("joined", socket.rooms);
       socket.emit("joined-room", room);
       let members =  io.sockets.adapter.rooms.get(room).size;
       console.log("members: ", members)
       io.to(room).emit("members", members)
-    } else {
-      socket.emit("errors", "Cannot join. Room doesn't exist!");
-    };
+    }else{
+      if (io.sockets.adapter.rooms.has(room)) {
+        socket.join(room);
+        console.log("joined", socket.rooms);
+        socket.emit("joined-room", room);
+        let members =  io.sockets.adapter.rooms.get(room).size;
+        console.log("members: ", members)
+        io.to(room).emit("members", members)
+      } else {
+        socket.emit("errors", "Cannot join. Room doesn't exist!");
+      }
+    }
   });
 
   // GET ROOM MEMBERS
@@ -161,6 +172,9 @@ io.on('connection', (socket)=> {
     console.log("in messages-room")
     let { roomId, message } = data;
     console.log("sending ", message, " to: ", roomId);
+    if(roomId=="public") {
+      lastPublicMessages.push(message);
+    }
     io.in(roomId).emit("messages-room", data);
   })
 
@@ -175,7 +189,9 @@ io.on('connection', (socket)=> {
   socket.on('canvas-rooms', (data)=> {
     const { image, roomId } = data;
     console.log(data)
-    //lastImage = image;
+    if(roomId=="public") {
+      lastImage = image;
+    }
     console.log("Received Image Data for public board.")
     io.in(roomId).emit('canvas-rooms', data);   // broadcast -> everyone except sender, emit -> everyone
   });

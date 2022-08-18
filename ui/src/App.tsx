@@ -1,22 +1,11 @@
 import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import FetchComponent from "./components/FetchComponent";
-import Canvas from "./components/Canvas/Canvas";
-import SocketTest from "./components/SocketTest";
-import Chat from "./components/Chat/Chat";
-import CanvasRooms from "./components/Rooms/CanvasRooms";
+import ChatRooms from "./components/Chat/ChatRooms";
 import socket from "./socket";
 import { User } from "./helpers/types";
-import ChatRooms from "./components/Rooms/ChatRooms";
-import ErrorModal from "./components/Modals/ErrorModal";
+import CanvasRooms from "./components/Canvas/CanvasRooms";
 
 function App() {
-
-  const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false);
-  const openErrorModal = () => setIsErrorModalVisible(true);
-  const closeErrorModal = () => setIsErrorModalVisible(false);
-  const [errorText, setErrorText] = useState<string>("");
 
   const [members, setMembers] = useState<number>(1);
   const [room, setRoom] = useState<string>("");
@@ -65,8 +54,6 @@ function App() {
     });
     socket.on("errors", (error) => {
       if(error.length>0) {
-        setErrorText(error);
-        //openErrorModal();
         window.alert(error);
       }
       console.log(error);
@@ -94,6 +81,19 @@ function App() {
     }
   };
 
+  const joinPublicRoom = () => {
+    socket.emit("join-room", "public");
+  };
+
+  const sendEmail = () => {
+    fetch("/send-email", {
+      method: "POST",
+      body: JSON.stringify({
+        to: "contactme@tijan.dev"
+      })
+    }).then(res => res.json()).then(data => console.log(data));
+  };
+
 
   return (
     <>
@@ -102,7 +102,7 @@ function App() {
         {!isLoggedIn ? (
           <>
             <label className='nickname'>Nickname:</label><br />
-            <input placeholder='John' value={nickname} style={{ marginBottom: "2vh", marginTop: "1vh" }} className="input" onChange={e => setNickname(e.target.value)} />
+            <input placeholder='Nickname' value={nickname} style={{ marginBottom: "2vh", marginTop: "1vh" }} className="input" onChange={e => setNickname(e.target.value)} />
             <br />
             <button onClick={login} className="button-19">Go!</button>
           </>
@@ -124,23 +124,18 @@ function App() {
                     <button style={{ marginTop: "1vh" }} onClick={createRoom} className="button-19">Create Private Room</button>
                   </div>
                 </div>
-                <p className='nickname-text' style={{ fontWeight: "300" }}>Draw & Chat on Public Canvas</p>
-                <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
-                  <div>
-                    <Canvas />
-                  </div>
-                  <div>
-                    <Chat nickname={nickname} />
-                  </div>
+                <div>
+                  <p className='nickname-text' style={{ fontWeight: "300" }}>Draw & Chat on Public Canvas</p>
+                  <button className="button-19" style={{ marginTop: "1vh" }} onClick={joinPublicRoom}>Join Public Room</button>
                 </div>
               </>
             ):(
               <>
-                <p className='nickname-text' style={{ fontWeight: "800" }}>Private Room Canvas & Chat</p>
-                <p className="nickname-text" style={{ fontWeight: "300" }}>Room Code: <b>{room}</b></p>
-                <div style={{ display: "flex", justifyContent: "center" }}>
+                <p className='nickname-text' style={{ fontWeight: "800" }}>{room.length>19 ? "Private":"Public"} Room Canvas & Chat</p>
+                {room.length>19 ? <p className="nickname-text" style={{ fontWeight: "300" }}>Room Code: <b>{room}</b></p>:null}
+                <div style={{ display: "flex", justifyContent: "center", flexDirection: "column", justifySelf: "center", justifyItems: "center", width: "fit-content", marginLeft: "auto", marginRight: "auto" }}>
+                  <button onClick={leaveRoom} className="button-19" style={{ marginTop: "0", marginBottom: "1vh" }}>Leave</button>
                   <p  className='nickname-text' style={{ fontWeight: "300" }}>Members: {members}</p>
-                  <button onClick={leaveRoom} className="button-19" style={{ marginTop: "1.5vh", marginLeft: "1vw" }}>leave</button>
                 </div>
                 <div style={{ display: "flex", flexDirection: "row", justifySelf: "center", justifyContent: "center", marginLeft: "auto", marginRight: "auto" }}>
                   <div>
@@ -156,13 +151,6 @@ function App() {
         )}
 
       </div>
-
-      <ErrorModal
-        text={errorText}
-        title="Error!"
-        isVisible={isErrorModalVisible}
-        close={closeErrorModal}
-      />
     </>
   );
 }

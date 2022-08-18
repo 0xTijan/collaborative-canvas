@@ -49,7 +49,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({
         
         const object = {
           name: "CanvasNFT",
-          description: "Canvas NFTs are NFT created from collab-convas app.",
+          description: "Canvas NFTs are NFT created from online whiteboard app.",
           image: _image.hash()
         };        
         const URI = new Moralis.File("file.json", {
@@ -247,21 +247,22 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({
       const lastImage = await response.json();
 
       const canvas: HTMLCanvasElement = canvasRef.current;
-      const context = canvas.getContext("2d");
-      if (context) {
-        context.fillStyle = "white";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-      }
-      if(lastImage) {
-        if(lastImage.data) {
-          const image = new Image();
-          image.onload = function() {
-            if(context) {
-              context.drawImage(image, 0, 0, canvas.width, canvas.height); // destination rectangle
-              // context.drawImage(image, 0, 0);
-            }
-          };
-          image.src = lastImage.data;
+      if(canvas) {
+        const context = canvas.getContext("2d");
+        if (context) {
+          context.fillStyle = "white";
+          context.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        if(lastImage) {
+          if(lastImage.data) {
+            const image = new Image();
+            image.onload = function() {
+              if(context) {
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
+              }
+            };
+            image.src = lastImage.data;
+          }
         }
       }
 
@@ -306,8 +307,8 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({
       <div style={{ marginTop: "6vh", marginBottom: "8vh" }}>
         <button style={{ marginRight: "1vw" }} className="button-19" onClick={downloadImage}>Download Canvas</button>
         <button style={{ marginRight: "1vw" }} className="button-19" onClick={mintNFT}>Mint As NFT</button>
-        <button style={{ marginRight: "1vw" }} className="button-19">Send it to my Email</button>
-        <button style={{ marginRight: "1vw" }} className="button-19">Tweet It</button>
+        {/*<button style={{ marginRight: "1vw" }} className="button-19">Send it to my Email</button>
+        <button style={{ marginRight: "1vw" }} className="button-19">Tweet It</button>*/}
       </div>
     </>
   );

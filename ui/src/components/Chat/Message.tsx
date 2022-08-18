@@ -1,5 +1,5 @@
 import React from "react";
-import { Message } from "../../../helpers/types";
+import { Message } from "../../helpers/types";
 
 interface MessageProps {
   message: Message,
