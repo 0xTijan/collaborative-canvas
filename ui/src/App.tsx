@@ -29,6 +29,7 @@ function App() {
   };
 
   useEffect(() => {
+    console.log("in use effect");
     socket.on("users", (users) => {
       users.map((user: User) => {
         const isLoggedIn = user.userID === socket.id;
@@ -58,6 +59,11 @@ function App() {
       }
       console.log(error);
     });
+    socket.on("connect_error", (err) => {
+      if(err.message) {
+        window.alert(err.message);
+      }
+    });
   }, []);
 
   const joinRoom = () => {
@@ -85,20 +91,9 @@ function App() {
     socket.emit("join-room", "public");
   };
 
-  const sendEmail = () => {
-    fetch("/send-email", {
-      method: "POST",
-      body: JSON.stringify({
-        to: "contactme@tijan.dev"
-      })
-    }).then(res => res.json()).then(data => console.log(data));
-  };
-
-
   return (
     <>
       <div className="App">
-        {/*<h1 className='title'>Real Time Canvas & Chat</h1>*/}
         {!isLoggedIn ? (
           <>
             <label className='nickname'>Nickname:</label><br />

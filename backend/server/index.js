@@ -43,8 +43,23 @@ const getRandomName = () => {
 
 io.use((socket, next) => {
   const username = socket.handshake.auth.username;
-  if (!username) {
-    return next(new Error("invalid username"));
+  if (!username || username.length<1) {
+    return next(new Error("Invalid Nickname!"));
+  }
+  const users = [];
+  let alreadyTaken = false;
+  for (let [id, _socket] of io.of("/").sockets) {
+    users.push({
+      userID: id,
+      username: _socket.username,
+    });
+    if(_socket.username == username) {
+      alreadyTaken = true;
+    }
+  }
+  if(alreadyTaken) {
+    console.log("Username already taken!");
+    return next(new Error("Nickname Already Taken!"));
   }
   socket.username = username;
   next();
@@ -115,10 +130,10 @@ io.of("/").adapter.on("leave-room", (room, id) => {
 
 io.on('connection', (socket)=> {
   const users = [];
-  for (let [id, socket] of io.of("/").sockets) {
+  for (let [id, _socket] of io.of("/").sockets) {
     users.push({
       userID: id,
-      username: socket.username,
+      username: _socket.username,
     });
   }
   socket.emit("users", users);
@@ -178,13 +193,6 @@ io.on('connection', (socket)=> {
     io.in(roomId).emit("messages-room", data);
   })
 
-  // PUBLIC CANVAS
-  socket.on('canvas-data-public', (data)=> {
-    lastImage = data;
-    console.log("Received Image Data for public board.")
-    socket.broadcast.emit('canvas-data-public', data);   // broadcast -> everyone except sender, emit -> everyone
-  });
-
   // ROOMS Canvas
   socket.on('canvas-rooms', (data)=> {
     const { image, roomId } = data;
@@ -194,13 +202,6 @@ io.on('connection', (socket)=> {
     }
     console.log("Received Image Data for public board.")
     io.in(roomId).emit('canvas-rooms', data);   // broadcast -> everyone except sender, emit -> everyone
-  });
-  
-  // PUBLIC MESSAGES
-  socket.on('messages-public', (data)=> {
-    console.log("Received Message", data);
-    io.emit('messages-public', data);
-    lastPublicMessages.push(data)
   });
 
   socket.on('disconnect', () => {
