@@ -3,7 +3,7 @@ Is a online collaborative whiteboard app, where users can draw and chat on a pub
 
 Please leave a ⭐ if you like it.
 
-![Whiteboard App Preview](./portfolio-preview.png)
+![Whiteboard App Preview](./app-preview.png)
 
 ## Try It Out
 You can try this app [here](https://tijan.dev/).
