@@ -91,15 +91,6 @@ function App() {
     socket.emit("join-room", "public");
   };
 
-  const sendEmail = () => {
-    fetch("/send-email", {
-      method: "POST",
-      body: JSON.stringify({
-        to: "test"
-      })
-    }).then(res => res.json()).then(data => console.log(data));
-  };
-
   return (
     <>
       <div className="App">
@@ -167,7 +158,6 @@ function App() {
           </>
         )}
       </div>
-      <button onClick={sendEmail}>Send</button>
     </>
   );
 }

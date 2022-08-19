@@ -6,11 +6,27 @@ const io = require('socket.io')(server, {cors: {origin: "*"}});
 const PORT = process.env.PORT || 3001;
 
 
+let imagesMap = new Map();
+let messagesMap = new Map([]);
+
+
 let lastImage;
 let lastPublicMessages = [];
 let messages = new Map();
 
+const pushMessage = (roomId, message) => {
+  let _messages = messagesMap.get(roomId);
+  messagesMap.set(roomId, [..._messages, message]);
+}
+
+const pushImage = (roomId, image) => {
+  imagesMap.set(roomId, image)
+}
+
+
 app.get('/last-canvas', (req, res) => {
+  const room = req.query.roomId;
+  const _lastImage = imagesMap.get(room);
   res.json({ data: lastImage });
 });
 
@@ -20,6 +36,7 @@ app.post("/send-email", (req, res) => {
 });
 
 app.get('/last-messages', (req, res) => {
+  const room = req.query.roomId;
   let amount = req.query.amount;
   if(amount==undefined || amount >= lastPublicMessages.length) {
     res.json({ messages: lastPublicMessages });
@@ -143,33 +160,31 @@ io.on('connection', (socket)=> {
     socket.join(roomName);
     console.log("joined", socket.rooms);
     socket.emit("joined-room", roomName);
-    const data = {
+    /*const data = {
       image: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gIoSUNDX1BST0ZJTEUAAQEAAAIYAAAAAAQwAABtbnRyUkdCIFhZWiAAAAAAAAAAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAAHRyWFlaAAABZAAAABRnWFlaAAABeAAAABRiWFlaAAABjAAAABRyVFJDAAABoAAAAChnVFJDAAABoAAAAChiVFJDAAABoAAAACh3dHB0AAAByAAAABRjcHJ0AAAB3AAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAFgAAAAcAHMAUgBHAEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFhZWiAAAAAAAABvogAAOPUAAAOQWFlaIAAAAAAAAGKZAAC3hQAAGNpYWVogAAAAAAAAJKAAAA+EAAC2z3BhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABYWVogAAAAAAAA9tYAAQAAAADTLW1sdWMAAAAAAAAAAQAAAAxlblVTAAAAIAAAABwARwBvAG8AZwBsAGUAIABJAG4AYwAuACAAMgAwADEANv/bAEMAAwICAgICAwICAgMDAwMEBgQEBAQECAYGBQYJCAoKCQgJCQoMDwwKCw4LCQkNEQ0ODxAQERAKDBITEhATDxAQEP/bAEMBAwMDBAMECAQECBALCQsQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEP/AABEIAAoACgMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AqmAD/9k=",
       roomId: room,
     }
-    socket.emit("canvas-rooms", data);
+    socket.emit("canvas-rooms", data);*/
   });
 
   // JOIN ROOM
   socket.on("join-room", (room) => {
-    if(room=="public") {
+    if (io.sockets.adapter.rooms.has(room)) {
       socket.join(room);
       console.log("joined", socket.rooms);
       socket.emit("joined-room", room);
       let members =  io.sockets.adapter.rooms.get(room).size;
       console.log("members: ", members)
       io.to(room).emit("members", members)
-    }else{
-      if (io.sockets.adapter.rooms.has(room)) {
-        socket.join(room);
-        console.log("joined", socket.rooms);
-        socket.emit("joined-room", room);
-        let members =  io.sockets.adapter.rooms.get(room).size;
-        console.log("members: ", members)
-        io.to(room).emit("members", members)
-      } else {
-        socket.emit("errors", "Cannot join. Room doesn't exist!");
-      }
+    } else if(room=="public") {
+      socket.join(room);
+      console.log("joined", socket.rooms);
+      socket.emit("joined-room", room);
+      let members =  io.sockets.adapter.rooms.get(room).size;
+      console.log("members: ", members)
+      io.to(room).emit("members", members)
+    } else {
+      socket.emit("errors", "Cannot join. Room doesn't exist!");
     }
   });
 
@@ -221,7 +236,3 @@ io.on('connection', (socket)=> {
 server.listen(PORT, () => {
   console.log('listening on: ', PORT);
 });
-
-// if you change any code here you need to restart server (ctrl+c, npm start)
-
-// delete room: https://stackoverflow.com/questions/23342395/how-to-delete-a-room-in-socket-io

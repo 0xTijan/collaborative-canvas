@@ -46,7 +46,7 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
         setToSend("");
       }
     });
-  }, []);
+  }, [roomId]);
 
   useEffect(() => {
     (async function get() {
@@ -66,7 +66,7 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
   return(
     <div className="chat-div" style={{ height: window.innerHeight*0.75 }}>
       <div style={{ paddingTop: "1rem", paddingBottom: "1rem", paddingLeft: "0.5rem", paddingRight: "0.5rem" }}>
-        <p>{roomId.length>14? "Private":"Public"} Chat:</p>
+        <p style={{ fontWeight: "800" }}>{roomId.length>14? "Private":"Public"} Chat:</p>
         {roomId.length<19 ? (
           <p>Load last
             <select name="amounts" id="amount" value={fetchAmount} onChange={e => setFetchAmount(Number(e.target.value))}>
@@ -78,7 +78,7 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
             </select>
           messages</p>
         ):null}
-        <div style={{ maxHeight: "32rem", overflow: "scroll", overflowX: "hidden" }}>
+        <div style={{ height: "33rem", overflow: "scroll", overflowX: "hidden" }}>
           {messages.map((message: Message, index: number) => {
             {/**fix later */}
             if(message!==messages[index-1]) {
@@ -92,7 +92,7 @@ const ChatRooms: React.FC<ChatRoomsProps> = ({ user, roomId }) => {
             }
           })}
         </div>
-        <div ref={bottomRef} />
+        {/**<div ref={bottomRef}*/}
         
         <div className="chat-input-box">
           <input className="input" placeholder="Type something . . ." value={toSend} onChange={e => setToSend(e.target.value)} />

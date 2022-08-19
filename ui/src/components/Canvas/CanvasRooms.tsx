@@ -253,15 +253,18 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({
           context.fillStyle = "white";
           context.fillRect(0, 0, canvas.width, canvas.height);
         }
-        if(lastImage) {
-          if(lastImage.data) {
-            const image = new Image();
-            image.onload = function() {
-              if(context) {
-                context.drawImage(image, 0, 0, canvas.width, canvas.height);
-              }
-            };
-            image.src = lastImage.data;
+        if(roomId=="public") {
+          console.log("setting");
+          if(lastImage) {
+            if(lastImage.data) {
+              const image = new Image();
+              image.onload = function() {
+                if(context) {
+                  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                }
+              };
+              image.src = lastImage.data;
+            }
           }
         }
       }
@@ -288,7 +291,7 @@ const CanvasRooms: React.FC<CanvasRoomProps> = ({
         }
       });
     })();
-  }, []);
+  }, [roomId]);
 
   return(
     <>
